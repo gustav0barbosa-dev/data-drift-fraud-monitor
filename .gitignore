@@ -1,0 +1,50 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+venv/
+.venv/
+*.egg-info/
+.pytest_cache/
+
+# Jupyter
+.ipynb_checkpoints/
+
+# Dados
+data/*.csv
+data/*.parquet
+*.h5
+*.pkl
+*.joblib
+
+# Modelos
+models/*.pkl
+models/*.joblib
+models/*.h5
+
+# Ambiente
+.env
+.env.local
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Node
+node_modules/
+.next/
+out/
+build/
+dist/
+
+# Docker
+*.log
+
+# OS
+.DS_Store
+Thumbs.db
