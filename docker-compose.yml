@@ -1,46 +1,127 @@
-version: '3.8'
+version: '3.9'
+
+# ============================================================
+# Data Drift Fraud Monitor - Docker Compose
+# ============================================================
 
 services:
+  # --------------------------------------------------------
+  # PostgreSQL
+  # --------------------------------------------------------
   db:
-    image: postgres:15
+    image: postgres:15-alpine
     container_name: drift-monitor-db
+    restart: unless-stopped
     environment:
-      POSTGRES_USER: admin
-      POSTGRES_PASSWORD: admin123
-      POSTGRES_DB: drift_monitor
+      POSTGRES_USER: ${POSTGRES_USER:-admin}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-admin123}
+      POSTGRES_DB: ${POSTGRES_DB:-drift_monitor}
+      PGDATA: /var/lib/postgresql/data/pgdata
     ports:
-      - "5432:5432"
+      - "${POSTGRES_PORT:-5432}:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
+      - ./backend/db/schema.sql:/docker-entrypoint-initdb.d/01-schema.sql:ro
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U admin"]
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-admin} -d ${POSTGRES_DB:-drift_monitor}"]
       interval: 10s
       timeout: 5s
       retries: 5
+      start_period: 30s
+    networks:
+      - drift-network
 
+  # --------------------------------------------------------
+  # Backend (FastAPI)
+  # --------------------------------------------------------
   backend:
-    build: ./backend
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
     container_name: drift-monitor-backend
+    restart: unless-stopped
     ports:
-      - "8000:8000"
+      - "${BACKEND_PORT:-8000}:8000"
     depends_on:
       db:
         condition: service_healthy
     environment:
-      DATABASE_URL: postgresql://admin:admin123@db:5432/drift_monitor
+      DATABASE_URL: postgresql://${POSTGRES_USER:-admin}:${POSTGRES_PASSWORD:-admin123}@db:5432/${POSTGRES_DB:-drift_monitor}
+      DEBUG: ${DEBUG:-true}
+      API_HOST: 0.0.0.0
+      API_PORT: 8000
+      PYTHONPATH: /app
     volumes:
       - ./backend:/app
       - ./notebooks:/app/notebooks
+      - ./data:/app/data
+      - model_data:/app/models
+    networks:
+      - drift-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
 
+  # --------------------------------------------------------
+  # Frontend (Next.js)
+  # --------------------------------------------------------
   frontend:
-    build: ./frontend
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
     container_name: drift-monitor-frontend
+    restart: unless-stopped
     ports:
-      - "3000:3000"
+      - "${FRONTEND_PORT:-3000}:3000"
     depends_on:
       - backend
     environment:
-      NEXT_PUBLIC_API_URL: http://localhost:8000
+      NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL:-http://localhost:8000}
+      NODE_ENV: ${NODE_ENV:-development}
+    volumes:
+      - ./frontend/src:/app/src
+    networks:
+      - drift-network
 
+  # --------------------------------------------------------
+  # PgAdmin (opcional - para inspeção do banco)
+  # --------------------------------------------------------
+  pgadmin:
+    image: dpage/pgadmin4:latest
+    container_name: drift-monitor-pgadmin
+    restart: unless-stopped
+    profiles:
+      - tools
+    environment:
+      PGADMIN_DEFAULT_EMAIL: ${PGADMIN_EMAIL:-admin@drift.com}
+      PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_PASSWORD:-admin123}
+      PGADMIN_CONFIG_SERVER_MODE: 'False'
+    ports:
+      - "${PGADMIN_PORT:-5050}:80"
+    depends_on:
+      - db
+    volumes:
+      - pgadmin_data:/var/lib/pgadmin
+    networks:
+      - drift-network
+
+# ============================================================
+# Volumes
+# ============================================================
 volumes:
   postgres_data:
+    driver: local
+  pgadmin_data:
+    driver: local
+  model_data:
+    driver: local
+
+# ============================================================
+# Networks
+# ============================================================
+networks:
+  drift-network:
+    driver: bridge

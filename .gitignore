@@ -9,6 +9,7 @@ venv/
 .venv/
 *.egg-info/
 .pytest_cache/
+.mypy_cache/
 
 # Jupyter
 .ipynb_checkpoints/
@@ -16,7 +17,7 @@ venv/
 # Dados
 data/*.csv
 data/*.parquet
-*.h5
+data/*.h5
 *.pkl
 *.joblib
 
@@ -24,16 +25,19 @@ data/*.parquet
 models/*.pkl
 models/*.joblib
 models/*.h5
+models/*.json
 
-# Ambiente
+# Ambiente (NUNCA subir)
 .env
 .env.local
+.env.*.local
 
 # IDE
 .vscode/
 .idea/
 *.swp
 *.swo
+*~
 
 # Node
 node_modules/
@@ -41,6 +45,9 @@ node_modules/
 out/
 build/
 dist/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
 
 # Docker
 *.log
@@ -48,3 +55,10 @@ dist/
 # OS
 .DS_Store
 Thumbs.db
+
+# PgAdmin
+pgadmin_data/
+
+# Logs
+logs/
+*.log

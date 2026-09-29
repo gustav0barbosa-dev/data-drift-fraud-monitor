@@ -1,27 +1,36 @@
-# FastAPI
+# ============================================================
+# Backend Requirements
+# ============================================================
+
+# ---- Web Framework ----
 fastapi==0.104.1
 uvicorn[standard]==0.24.0
 pydantic==2.5.2
+pydantic-settings==2.1.0
+python-multipart==0.0.6
 
-# Banco de dados
+# ---- Banco de Dados ----
 sqlalchemy==2.0.23
 psycopg2-binary==2.9.9
 alembic==1.12.1
 
-# Machine Learning
+# ---- Machine Learning ----
 scikit-learn==1.3.2
 xgboost==2.0.2
 pandas==2.1.3
 numpy==1.26.2
-
-# Estatística e Drift
-scipy==1.11.4
-evidently==0.4.15
-
-# Visualização
-matplotlib==3.8.2
-seaborn==0.13.0
-
-# Utilitários
-python-dotenv==1.0.0
 joblib==1.3.2
+
+# ---- Estatística ----
+scipy==1.11.4
+
+# ---- Utilitários ----
+python-dotenv==1.0.0
+httpx==0.25.2
+
+# ---- Logging ----
+loguru==0.7.2
+
+# ---- Testes ----
+pytest==7.4.3
+pytest-asyncio==0.21.1
