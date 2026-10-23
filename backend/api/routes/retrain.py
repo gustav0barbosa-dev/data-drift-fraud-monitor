@@ -1,49 +1,62 @@
+# backend/api/routes/retrain.py
 """
-Endpoints de retreinamento de modelo.
+Endpoints de retreinamento.
 """
-from fastapi import APIRouter, Depends, HTTPException, BackgroundTasks
+from fastapi import APIRouter, Depends, BackgroundTasks, status
 from sqlalchemy.orm import Session
 from datetime import datetime
+from pydantic import BaseModel
 
 from api.dependencies import get_db
-from api.schemas.retrain import RetrainRequest, RetrainResponse
 from api.exceptions import NotFoundException
-from ml.retrain import ModelRetrainer
 from db.models import Experiment, ModelVersion, Alert
 
 router = APIRouter()
 
 
-@router.post("/", response_model=RetrainResponse)
+class RetrainRequest(BaseModel):
+    """Requisição de retreinamento."""
+    experiment_id: int
+    reason: str = "manual"
+    triggered_by: str = "api"
+
+
+class RetrainResponse(BaseModel):
+    """Resposta de retreinamento."""
+    experiment_id: int
+    status: str
+    message: str
+    triggered_at: datetime
+
+
+@router.post("/", response_model=RetrainResponse, status_code=status.HTTP_202_ACCEPTED)
 async def retrain_model(
     request: RetrainRequest,
     background_tasks: BackgroundTasks,
     db: Session = Depends(get_db)
 ):
-    """
-    Dispara o retreinamento do modelo.
-    """
-    # Verificar experimento
-    experiment = db.query(Experiment).filter(Experiment.id == request.experiment_id).first()
+    """Dispara retreinamento do modelo."""
+    experiment = db.query(Experiment).filter(
+        Experiment.id == request.experiment_id
+    ).first()
     if not experiment:
         raise NotFoundException("Experiment", request.experiment_id)
     
-    # Criar registro de alerta
+    # Registrar alerta
     alert = Alert(
         experiment_id=request.experiment_id,
         alert_type="retrain_triggered",
         severity="info",
         message=f"Retreinamento disparado: {request.reason}",
-        metadata={"reason": request.reason, "triggered_by": request.triggered_by}
+        metadata_json={"reason": request.reason, "triggered_by": request.triggered_by}
     )
     db.add(alert)
     db.commit()
     
-    # Executar retreinamento em background
+    # Executar em background
     background_tasks.add_task(
         _execute_retraining,
-        experiment_id=request.experiment_id,
-        db=db
+        experiment_id=request.experiment_id
     )
     
     return RetrainResponse(
@@ -54,20 +67,27 @@ async def retrain_model(
     )
 
 
-async def _execute_retraining(experiment_id: int, db: Session):
-    """Executa o retreinamento em background."""
+async def _execute_retraining(experiment_id: int):
+    """
+    Executa retreinamento em background.
+    
+    Nota: Esta função deve ser implementada pela Pessoa 1.
+    Aqui é apenas um placeholder que registra o evento.
+    """
+    from db.database import SessionLocal
+    
+    db = SessionLocal()
     try:
-        retrainer = ModelRetrainer(db)
-        new_version = retrainer.retrain(experiment_id)
+        # TODO: Integrar com ml/retrain.py (Pessoa 1)
+        # retrainer = ModelRetrainer(db)
+        # new_version = retrainer.retrain(experiment_id)
         
-        # Registrar alerta de conclusão
         alert = Alert(
             experiment_id=experiment_id,
-            model_version_id=new_version.id,
             alert_type="retrain_completed",
             severity="info",
-            message=f"Retreinamento concluído: versão {new_version.version}",
-            metadata={"version": new_version.version}
+            message="Retreinamento concluído (placeholder)",
+            metadata_json={"status": "placeholder"}
         )
         db.add(alert)
         db.commit()
@@ -80,6 +100,8 @@ async def _execute_retraining(experiment_id: int, db: Session):
         )
         db.add(alert)
         db.commit()
+    finally:
+        db.close()
 
 
 @router.get("/history/{experiment_id}")
@@ -87,21 +109,16 @@ async def get_retrain_history(
     experiment_id: int,
     db: Session = Depends(get_db)
 ):
-    """
-    Obtém o histórico de retreinamentos de um experimento.
-    """
+    """Obtém histórico de retreinamentos."""
     alerts = db.query(Alert).filter(
         Alert.experiment_id == experiment_id,
         Alert.alert_type.in_(["retrain_triggered", "retrain_completed"])
     ).order_by(Alert.triggered_at.desc()).all()
     
-    return [
-        {
-            "id": a.id,
-            "type": a.alert_type,
-            "severity": a.severity,
-            "message": a.message,
-            "triggered_at": a.triggered_at
-        }
-        for a in alerts
-    ]
+    return [{
+        "id": a.id,
+        "type": a.alert_type,
+        "severity": a.severity,
+        "message": a.message,
+        "triggered_at": a.triggered_at
+    } for a in alerts]

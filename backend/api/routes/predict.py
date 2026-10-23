@@ -1,65 +1,61 @@
+# backend/api/routes/predict.py (atualizado)
 """
-Endpoints de predição de fraude.
+Endpoints de predição — integrado com modelo real.
 """
-from fastapi import APIRouter, Depends, HTTPException, BackgroundTasks
+from fastapi import APIRouter, Depends, status, HTTPException
 from sqlalchemy.orm import Session
-from typing import List
 import time
 
-from api.dependencies import get_db
-from api.schemas.transaction import TransactionCreate, TransactionResponse, TransactionBatch
-from api.schemas.prediction import PredictionResponse, PredictionBatchResponse
-from api.exceptions import ModelNotLoadedException
+from api.dependencies import get_db, get_predictor, get_active_model_version
+from api.schemas.transaction import TransactionCreate, TransactionBatchCreate
+from api.schemas.prediction import (
+    PredictionResponse,
+    PredictionBatchResponse,
+    PredictionBatchItem
+)
 from ml.predict import FraudPredictor
 from db.models import Transaction, Prediction, ModelVersion
 
 router = APIRouter()
 
-# Instância global do preditor (carregada no startup)
-predictor: FraudPredictor = None
 
-
-def get_predictor() -> FraudPredictor:
-    """Obtém o preditor carregado."""
-    if predictor is None:
-        raise ModelNotLoadedException()
-    return predictor
-
-
-@router.post("/", response_model=PredictionResponse)
+@router.post(
+    "/",
+    response_model=PredictionResponse,
+    status_code=status.HTTP_201_CREATED,
+    summary="Predição única",
+    description="Realiza predição de fraude usando o modelo ativo."
+)
 async def predict_single(
     transaction: TransactionCreate,
     db: Session = Depends(get_db),
-    pred: FraudPredictor = Depends(get_predictor)
+    predictor: FraudPredictor = Depends(get_predictor),
+    active_model: ModelVersion = Depends(get_active_model_version)
 ):
-    """
-    Realiza a predição de fraude para uma única transação.
-    """
+    """Realiza predição de uma única transação."""
     start_time = time.time()
     
-    # Salvar transação no banco
+    # Salvar transação
     db_transaction = Transaction(**transaction.model_dump())
     db.add(db_transaction)
     db.commit()
     db.refresh(db_transaction)
     
-    # Realizar predição
-    result = pred.predict(transaction.model_dump())
+    # Predição real
+    try:
+        result = predictor.predict(transaction.model_dump())
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Erro na predição: {str(e)}")
     
-    # Calcular latência
     latency_ms = (time.time() - start_time) * 1000
     
     # Salvar predição
-    active_model = db.query(ModelVersion).filter(ModelVersion.is_active == True).first()
-    if not active_model:
-        raise HTTPException(status_code=503, detail="Nenhum modelo ativo encontrado")
-    
     db_prediction = Prediction(
         model_version_id=active_model.id,
         transaction_id=db_transaction.id,
         is_fraud=result["is_fraud"],
         probability=result["probability"],
-        latency_ms=latency_ms
+        latency_ms=round(latency_ms, 2)
     )
     db.add(db_prediction)
     db.commit()
@@ -70,56 +66,74 @@ async def predict_single(
         transaction_id=db_transaction.id,
         is_fraud=result["is_fraud"],
         probability=result["probability"],
-        latency_ms=latency_ms,
+        latency_ms=round(latency_ms, 2),
         predicted_at=db_prediction.predicted_at
     )
 
 
-@router.post("/batch", response_model=PredictionBatchResponse)
+@router.post(
+    "/batch",
+    response_model=PredictionBatchResponse,
+    status_code=status.HTTP_201_CREATED,
+    summary="Predição em lote"
+)
 async def predict_batch(
-    batch: TransactionBatch,
+    batch: TransactionBatchCreate,
     db: Session = Depends(get_db),
-    pred: FraudPredictor = Depends(get_predictor)
+    predictor: FraudPredictor = Depends(get_predictor),
+    active_model: ModelVersion = Depends(get_active_model_version)
 ):
-    """
-    Realiza predições em lote.
-    """
+    """Realiza predições em lote."""
     start_time = time.time()
-    results = []
     
-    active_model = db.query(ModelVersion).filter(ModelVersion.is_active == True).first()
-    if not active_model:
-        raise HTTPException(status_code=503, detail="Nenhum modelo ativo encontrado")
+    # Salvar transações
+    db_transactions = []
+    for t in batch.transactions:
+        db_t = Transaction(**t.model_dump())
+        db.add(db_t)
+        db_transactions.append(db_t)
+    db.flush()
     
-    for transaction in batch.transactions:
-        # Salvar transação
-        db_transaction = Transaction(**transaction.model_dump())
-        db.add(db_transaction)
-        db.flush()
-        
-        # Predição
-        result = pred.predict(transaction.model_dump())
-        
-        db_prediction = Prediction(
+    # Predição em lote
+    try:
+        results = predictor.predict_batch([t.model_dump() for t in batch.transactions])
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Erro na predição: {str(e)}")
+    
+    # Salvar predições
+    predictions = []
+    for db_t, result in zip(db_transactions, results):
+        db_p = Prediction(
             model_version_id=active_model.id,
-            transaction_id=db_transaction.id,
+            transaction_id=db_t.id,
             is_fraud=result["is_fraud"],
             probability=result["probability"]
         )
-        db.add(db_prediction)
-        
-        results.append({
-            "transaction_id": db_transaction.id,
-            "is_fraud": result["is_fraud"],
-            "probability": result["probability"]
-        })
+        db.add(db_p)
+        predictions.append(PredictionBatchItem(
+            transaction_id=db_t.id,
+            is_fraud=result["is_fraud"],
+            probability=result["probability"]
+        ))
     
     db.commit()
+    
     total_latency = (time.time() - start_time) * 1000
     
     return PredictionBatchResponse(
-        total=len(results),
-        predictions=results,
-        total_latency_ms=total_latency,
-        avg_latency_ms=total_latency / len(results)
+        total=len(predictions),
+        predictions=predictions,
+        total_latency_ms=round(total_latency, 2),
+        avg_latency_ms=round(total_latency / len(predictions), 2)
     )
+
+
+@router.get("/health", summary="Health do preditor")
+async def predictor_health(
+    predictor: FraudPredictor = Depends(get_predictor)
+):
+    """Verifica status do preditor."""
+    return {
+        "status": "ready" if predictor.is_loaded() else "not_loaded",
+        "model_path": predictor.model_path
+    }

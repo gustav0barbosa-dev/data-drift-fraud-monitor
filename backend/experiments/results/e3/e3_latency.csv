@@ -1,0 +1,16 @@
+scenario,method,detection_rate,median_detection_window,mean_windows_to_detection,censored,n_runs
+low,psi,0.0,,13.0,50,50
+low,ks,1.0,4.0,4.0,0,50
+low,js,0.08,,12.78,46,50
+low,wasserstein,0.76,8.0,8.46,12,50
+low,any,1.0,4.0,4.0,0,50
+moderate,psi,1.0,5.0,5.38,0,50
+moderate,ks,1.0,2.0,1.9,0,50
+moderate,js,1.0,4.0,3.78,0,50
+moderate,wasserstein,1.0,3.0,2.9,0,50
+moderate,any,1.0,2.0,1.9,0,50
+high,psi,1.0,3.0,2.92,0,50
+high,ks,1.0,1.0,1.16,0,50
+high,js,1.0,2.0,2.12,0,50
+high,wasserstein,1.0,2.0,1.68,0,50
+high,any,1.0,1.0,1.16,0,50

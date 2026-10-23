@@ -1,0 +1,793 @@
+{
+  "experiment": "E3 — Comparação da sensibilidade dos métodos de detecção",
+  "generated_at": "2026-10-23T13:23:03.084868+00:00",
+  "config": {
+    "repetitions": 200,
+    "latency_repetitions": 50,
+    "n_reference": 1000,
+    "n_current": 500,
+    "window_size": 300,
+    "max_windows": 12,
+    "ramp_windows": 5,
+    "seed": 42,
+    "methods": [
+      "psi",
+      "ks",
+      "js",
+      "wasserstein"
+    ],
+    "thresholds": {
+      "psi": {
+        "warning": 0.1,
+        "critical": 0.25,
+        "direction": "above"
+      },
+      "ks": {
+        "warning": 0.1,
+        "critical": 0.05,
+        "direction": "below"
+      },
+      "js": {
+        "warning": 0.05,
+        "critical": 0.1,
+        "direction": "above"
+      },
+      "wasserstein": {
+        "warning": 0.1,
+        "critical": 0.25,
+        "direction": "above"
+      },
+      "trigger_severity": "critical",
+      "min_samples": 30,
+      "psi_bins": 10,
+      "js_bins": 10
+    },
+    "bonferroni_alpha": 0.008333333333333333
+  },
+  "scenarios": {
+    "none": {
+      "shift": 0.0,
+      "scale": 1.0,
+      "label": 0,
+      "description": "Sem drift (controle)"
+    },
+    "low": {
+      "shift": 0.2,
+      "scale": 1.05,
+      "label": 1,
+      "description": "Drift baixo: deslocamento de 0,2σ"
+    },
+    "moderate": {
+      "shift": 0.5,
+      "scale": 1.2,
+      "label": 1,
+      "description": "Drift moderado: 0,5σ + 20% de escala"
+    },
+    "high": {
+      "shift": 1.0,
+      "scale": 1.5,
+      "label": 1,
+      "description": "Drift forte: 1,0σ + 50% de escala"
+    }
+  },
+  "performance": {
+    "none": {
+      "shift": 0.0,
+      "scale": 1.0,
+      "label": 0,
+      "description": "Sem drift (controle)",
+      "n_runs": 200,
+      "methods": {
+        "psi": {
+          "detection_rate": 0.0,
+          "successes": 0,
+          "n": 200,
+          "ci_lower": 0.0,
+          "ci_upper": 0.018845326377266575,
+          "mean_score": 0.025483259087958697
+        },
+        "ks": {
+          "detection_rate": 0.055,
+          "successes": 11,
+          "n": 200,
+          "ci_lower": 0.03098534170345884,
+          "ci_upper": 0.0957869987723084,
+          "mean_score": 0.47445833116859826
+        },
+        "js": {
+          "detection_rate": 0.0,
+          "successes": 0,
+          "n": 200,
+          "ci_lower": 0.0,
+          "ci_upper": 0.018845326377266575,
+          "mean_score": 0.0009707891054646285
+        },
+        "wasserstein": {
+          "detection_rate": 0.0,
+          "successes": 0,
+          "n": 200,
+          "ci_lower": 0.0,
+          "ci_upper": 0.018845326377266575,
+          "mean_score": 0.06807478306489567
+        }
+      }
+    },
+    "low": {
+      "shift": 0.2,
+      "scale": 1.05,
+      "label": 1,
+      "description": "Drift baixo: deslocamento de 0,2σ",
+      "n_runs": 200,
+      "methods": {
+        "psi": {
+          "detection_rate": 0.0,
+          "successes": 0,
+          "n": 200,
+          "ci_lower": 0.0,
+          "ci_upper": 0.018845326377266575,
+          "mean_score": 0.06698861933592436
+        },
+        "ks": {
+          "detection_rate": 0.855,
+          "successes": 171,
+          "n": 200,
+          "ci_lower": 0.7995133246921847,
+          "ci_upper": 0.8971064935799559,
+          "mean_score": 0.9700716156411652
+        },
+        "js": {
+          "detection_rate": 0.02,
+          "successes": 4,
+          "n": 200,
+          "ci_lower": 0.0078044264163494685,
+          "ci_upper": 0.050287086905826436,
+          "mean_score": 0.03637043817813627
+        },
+        "wasserstein": {
+          "detection_rate": 0.185,
+          "successes": 37,
+          "n": 200,
+          "ci_lower": 0.13730192800616042,
+          "ci_upper": 0.2445706276115175,
+          "mean_score": 0.2030566509642388
+        }
+      }
+    },
+    "moderate": {
+      "shift": 0.5,
+      "scale": 1.2,
+      "label": 1,
+      "description": "Drift moderado: 0,5σ + 20% de escala",
+      "n_runs": 200,
+      "methods": {
+        "psi": {
+          "detection_rate": 0.595,
+          "successes": 119,
+          "n": 200,
+          "ci_lower": 0.525797100813387,
+          "ci_upper": 0.6606222871749323,
+          "mean_score": 0.26040203460380196
+        },
+        "ks": {
+          "detection_rate": 1.0,
+          "successes": 200,
+          "n": 200,
+          "ci_lower": 0.9811546736227335,
+          "ci_upper": 1.0,
+          "mean_score": 0.9999999968285311
+        },
+        "js": {
+          "detection_rate": 1.0,
+          "successes": 200,
+          "n": 200,
+          "ci_lower": 0.9811546736227335,
+          "ci_upper": 1.0,
+          "mean_score": 0.16401795796273178
+        },
+        "wasserstein": {
+          "detection_rate": 1.0,
+          "successes": 200,
+          "n": 200,
+          "ci_lower": 0.9811546736227335,
+          "ci_upper": 1.0,
+          "mean_score": 0.5085008908297608
+        }
+      }
+    },
+    "high": {
+      "shift": 1.0,
+      "scale": 1.5,
+      "label": 1,
+      "description": "Drift forte: 1,0σ + 50% de escala",
+      "n_runs": 200,
+      "methods": {
+        "psi": {
+          "detection_rate": 1.0,
+          "successes": 200,
+          "n": 200,
+          "ci_lower": 0.9811546736227335,
+          "ci_upper": 1.0,
+          "mean_score": 0.7276747644745909
+        },
+        "ks": {
+          "detection_rate": 1.0,
+          "successes": 200,
+          "n": 200,
+          "ci_lower": 0.9811546736227335,
+          "ci_upper": 1.0,
+          "mean_score": 1.0
+        },
+        "js": {
+          "detection_rate": 1.0,
+          "successes": 200,
+          "n": 200,
+          "ci_lower": 0.9811546736227335,
+          "ci_upper": 1.0,
+          "mean_score": 0.29989777636831033
+        },
+        "wasserstein": {
+          "detection_rate": 1.0,
+          "successes": 200,
+          "n": 200,
+          "ci_lower": 0.9811546736227335,
+          "ci_upper": 1.0,
+          "mean_score": 1.015082668468748
+        }
+      }
+    }
+  },
+  "pooled": {
+    "psi": {
+      "auc": 0.9790583333333334,
+      "auc_ci": {
+        "estimate": 0.9790583333333334,
+        "lower": 0.9713114744464308,
+        "upper": 0.9866552078788097
+      },
+      "classification": {
+        "tp": 319,
+        "fp": 0,
+        "tn": 200,
+        "fn": 281,
+        "n": 800,
+        "sensitivity": 0.5316666666666666,
+        "specificity": 1.0,
+        "precision": 1.0,
+        "accuracy": 0.64875,
+        "f1": 0.6942328618063112,
+        "mcc": 0.4701778610985646,
+        "false_positive_rate": 0.0,
+        "false_negative_rate": 0.4683333333333334
+      },
+      "mean_detection_rate": 0.39875
+    },
+    "ks": {
+      "auc": 0.9915041666666666,
+      "auc_ci": {
+        "estimate": 0.9915041666666666,
+        "lower": 0.9869717176304053,
+        "upper": 0.9953875644637368
+      },
+      "classification": {
+        "tp": 571,
+        "fp": 11,
+        "tn": 189,
+        "fn": 29,
+        "n": 800,
+        "sensitivity": 0.9516666666666667,
+        "specificity": 0.945,
+        "precision": 0.9810996563573883,
+        "accuracy": 0.95,
+        "f1": 0.9661590524534686,
+        "mcc": 0.8720309701885836,
+        "false_positive_rate": 0.05500000000000005,
+        "false_negative_rate": 0.04833333333333334
+      },
+      "mean_detection_rate": 0.7275
+    },
+    "js": {
+      "auc": 0.9399833333333333,
+      "auc_ci": {
+        "estimate": 0.9399833333333333,
+        "lower": 0.9262445017079164,
+        "upper": 0.9525351049123939
+      },
+      "classification": {
+        "tp": 404,
+        "fp": 0,
+        "tn": 200,
+        "fn": 196,
+        "n": 800,
+        "sensitivity": 0.6733333333333333,
+        "specificity": 1.0,
+        "precision": 1.0,
+        "accuracy": 0.755,
+        "f1": 0.8047808764940239,
+        "mcc": 0.5831529302570124,
+        "false_positive_rate": 0.0,
+        "false_negative_rate": 0.32666666666666666
+      },
+      "mean_detection_rate": 0.505
+    },
+    "wasserstein": {
+      "auc": 0.9955916666666667,
+      "auc_ci": {
+        "estimate": 0.9955916666666667,
+        "lower": 0.9923713164701709,
+        "upper": 0.9981183662419443
+      },
+      "classification": {
+        "tp": 437,
+        "fp": 0,
+        "tn": 200,
+        "fn": 163,
+        "n": 800,
+        "sensitivity": 0.7283333333333334,
+        "specificity": 1.0,
+        "precision": 1.0,
+        "accuracy": 0.79625,
+        "f1": 0.8428158148505304,
+        "mcc": 0.6334710594050568,
+        "false_positive_rate": 0.0,
+        "false_negative_rate": 0.2716666666666666
+      },
+      "mean_detection_rate": 0.54625
+    }
+  },
+  "latency": {
+    "low": {
+      "shift": 0.2,
+      "scale": 1.05,
+      "n_runs": 50,
+      "max_windows": 12,
+      "methods": {
+        "psi": {
+          "detection_rate": 0.0,
+          "median_detection_window": null,
+          "mean_windows_to_detection": 13.0,
+          "censored": 50,
+          "detection_curve": [
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        "ks": {
+          "detection_rate": 1.0,
+          "median_detection_window": 4.0,
+          "mean_windows_to_detection": 4.0,
+          "censored": 0,
+          "detection_curve": [
+            0.04,
+            0.2,
+            0.42,
+            0.6,
+            0.88,
+            0.94,
+            0.94,
+            0.98,
+            1.0,
+            1.0,
+            1.0,
+            1.0
+          ]
+        },
+        "js": {
+          "detection_rate": 0.08,
+          "median_detection_window": null,
+          "mean_windows_to_detection": 12.78,
+          "censored": 46,
+          "detection_curve": [
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.02,
+            0.02,
+            0.04,
+            0.06,
+            0.08
+          ]
+        },
+        "wasserstein": {
+          "detection_rate": 0.76,
+          "median_detection_window": 8.0,
+          "mean_windows_to_detection": 8.46,
+          "censored": 12,
+          "detection_curve": [
+            0.0,
+            0.0,
+            0.0,
+            0.08,
+            0.26,
+            0.4,
+            0.48,
+            0.56,
+            0.62,
+            0.68,
+            0.7,
+            0.76
+          ]
+        },
+        "any": {
+          "detection_rate": 1.0,
+          "median_detection_window": 4.0,
+          "mean_windows_to_detection": 4.0,
+          "censored": 0,
+          "detection_curve": [
+            0.04,
+            0.2,
+            0.42,
+            0.6,
+            0.88,
+            0.94,
+            0.94,
+            0.98,
+            1.0,
+            1.0,
+            1.0,
+            1.0
+          ]
+        }
+      }
+    },
+    "moderate": {
+      "shift": 0.5,
+      "scale": 1.2,
+      "n_runs": 50,
+      "max_windows": 12,
+      "methods": {
+        "psi": {
+          "detection_rate": 1.0,
+          "median_detection_window": 5.0,
+          "mean_windows_to_detection": 5.38,
+          "censored": 0,
+          "detection_curve": [
+            0.0,
+            0.0,
+            0.04,
+            0.14,
+            0.62,
+            0.88,
+            0.98,
+            0.98,
+            0.98,
+            1.0,
+            1.0,
+            1.0
+          ]
+        },
+        "ks": {
+          "detection_rate": 1.0,
+          "median_detection_window": 2.0,
+          "mean_windows_to_detection": 1.9,
+          "censored": 0,
+          "detection_curve": [
+            0.3,
+            0.8,
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0
+          ]
+        },
+        "js": {
+          "detection_rate": 1.0,
+          "median_detection_window": 4.0,
+          "mean_windows_to_detection": 3.78,
+          "censored": 0,
+          "detection_curve": [
+            0.0,
+            0.02,
+            0.3,
+            0.9,
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0
+          ]
+        },
+        "wasserstein": {
+          "detection_rate": 1.0,
+          "median_detection_window": 3.0,
+          "mean_windows_to_detection": 2.9,
+          "censored": 0,
+          "detection_curve": [
+            0.02,
+            0.2,
+            0.88,
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0
+          ]
+        },
+        "any": {
+          "detection_rate": 1.0,
+          "median_detection_window": 2.0,
+          "mean_windows_to_detection": 1.9,
+          "censored": 0,
+          "detection_curve": [
+            0.3,
+            0.8,
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0
+          ]
+        }
+      }
+    },
+    "high": {
+      "shift": 1.0,
+      "scale": 1.5,
+      "n_runs": 50,
+      "max_windows": 12,
+      "methods": {
+        "psi": {
+          "detection_rate": 1.0,
+          "median_detection_window": 3.0,
+          "mean_windows_to_detection": 2.92,
+          "censored": 0,
+          "detection_curve": [
+            0.0,
+            0.14,
+            0.94,
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0
+          ]
+        },
+        "ks": {
+          "detection_rate": 1.0,
+          "median_detection_window": 1.0,
+          "mean_windows_to_detection": 1.16,
+          "censored": 0,
+          "detection_curve": [
+            0.84,
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0
+          ]
+        },
+        "js": {
+          "detection_rate": 1.0,
+          "median_detection_window": 2.0,
+          "mean_windows_to_detection": 2.12,
+          "censored": 0,
+          "detection_curve": [
+            0.06,
+            0.82,
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0
+          ]
+        },
+        "wasserstein": {
+          "detection_rate": 1.0,
+          "median_detection_window": 2.0,
+          "mean_windows_to_detection": 1.68,
+          "censored": 0,
+          "detection_curve": [
+            0.34,
+            0.98,
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0
+          ]
+        },
+        "any": {
+          "detection_rate": 1.0,
+          "median_detection_window": 1.0,
+          "mean_windows_to_detection": 1.16,
+          "censored": 0,
+          "detection_curve": [
+            0.84,
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0
+          ]
+        }
+      }
+    }
+  },
+  "pairwise": {
+    "psi_vs_ks": {
+      "kappa": 0.39796957800643235,
+      "agreement": 0.67125,
+      "mcnemar": {
+        "b": 11,
+        "c": 252,
+        "statistic": 219.01140684410646,
+        "p_value": 1.4860147698411733e-49,
+        "method": "chi2_corrected"
+      },
+      "accuracy_difference": -0.30125,
+      "accuracy_difference_ci": {
+        "estimate": -0.30125,
+        "lower": -0.33375,
+        "upper": -0.265
+      }
+    },
+    "psi_vs_js": {
+      "kappa": 0.7879294428781718,
+      "agreement": 0.89375,
+      "mcnemar": {
+        "b": 0,
+        "c": 85,
+        "statistic": 83.01176470588236,
+        "p_value": 8.156648879083517e-20,
+        "method": "chi2_corrected"
+      },
+      "accuracy_difference": -0.10625,
+      "accuracy_difference_ci": {
+        "estimate": -0.10625,
+        "lower": -0.12815625,
+        "upper": -0.085
+      }
+    },
+    "psi_vs_wasserstein": {
+      "kappa": 0.7104241182353049,
+      "agreement": 0.8525,
+      "mcnemar": {
+        "b": 0,
+        "c": 118,
+        "statistic": 116.00847457627118,
+        "p_value": 4.7326982919297024e-27,
+        "method": "chi2_corrected"
+      },
+      "accuracy_difference": -0.1475,
+      "accuracy_difference_ci": {
+        "estimate": -0.1475,
+        "lower": -0.17125,
+        "upper": -0.1225
+      }
+    },
+    "ks_vs_js": {
+      "kappa": 0.5529659952785172,
+      "agreement": 0.7775,
+      "mcnemar": {
+        "b": 167,
+        "c": 11,
+        "statistic": 134.97191011235955,
+        "p_value": 3.3487316013710174e-31,
+        "method": "chi2_corrected"
+      },
+      "accuracy_difference": 0.195,
+      "accuracy_difference_ci": {
+        "estimate": 0.195,
+        "lower": 0.16559375,
+        "upper": 0.225
+      }
+    },
+    "ks_vs_wasserstein": {
+      "kappa": 0.6215729516004853,
+      "agreement": 0.81875,
+      "mcnemar": {
+        "b": 134,
+        "c": 11,
+        "statistic": 102.64827586206897,
+        "p_value": 4.0025968522941565e-24,
+        "method": "chi2_corrected"
+      },
+      "accuracy_difference": 0.15375,
+      "accuracy_difference_ci": {
+        "estimate": 0.15375,
+        "lower": 0.12625,
+        "upper": 0.18065624999999996
+      }
+    },
+    "js_vs_wasserstein": {
+      "kappa": 0.9174236168455822,
+      "agreement": 0.95875,
+      "mcnemar": {
+        "b": 0,
+        "c": 33,
+        "statistic": 31.03030303030303,
+        "p_value": 2.5403120142884262e-08,
+        "method": "chi2_corrected"
+      },
+      "accuracy_difference": -0.04125,
+      "accuracy_difference_ci": {
+        "estimate": -0.04125,
+        "lower": -0.05625,
+        "upper": -0.02875
+      }
+    }
+  },
+  "ranking": {
+    "by_auc": [
+      "wasserstein",
+      "ks",
+      "psi",
+      "js"
+    ],
+    "by_sensitivity": [
+      "ks",
+      "wasserstein",
+      "js",
+      "psi"
+    ],
+    "by_false_positive_rate": [
+      "psi",
+      "js",
+      "wasserstein",
+      "ks"
+    ],
+    "by_latency": [
+      "ks",
+      "wasserstein",
+      "js",
+      "psi"
+    ]
+  }
+}

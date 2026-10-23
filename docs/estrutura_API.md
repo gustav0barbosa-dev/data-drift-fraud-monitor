@@ -26,8 +26,14 @@ backend/
 Método	Endpoint	Descrição
 POST	/api/v1/predict/	Predição única
 POST	/api/v1/predict/batch	Predição em lote
-POST	/api/v1/drift/detect	Detecção de drift
+POST	/api/v1/drift/detect	Detecção de drift em janelas persistidas
+POST	/api/v1/drift/detect/feature	Detecção de drift em valores brutos (sem banco)
+POST	/api/v1/drift/detect/batch	Detecção de drift em lote (sem banco)
 GET	/api/v1/drift/metrics/{experiment_id}	Métricas de drift
+GET	/api/v1/drift/metrics/{experiment_id}/summary	Resumo das métricas de drift
+GET	/api/v1/drift/thresholds	Limiares padrão de drift
+GET	/api/v1/drift/alerts/{experiment_id}	Alertas de drift
+PATCH	/api/v1/drift/alerts/{alert_id}/resolve	Resolver/reabrir alerta
 POST	/api/v1/retrain/	Disparar retreinamento
 GET	/api/v1/retrain/history/{experiment_id}	Histórico de retreinamentos
 GET	/api/v1/metrics/performance/{model_version_id}	Métricas de desempenho
