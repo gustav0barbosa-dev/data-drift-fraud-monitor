@@ -1,0 +1,16 @@
+{
+  "name": "Data Drift Fraud Monitor",
+  "short_name": "Drift Monitor",
+  "description": "Monitoramento de Data Drift em modelos de detecção de fraude.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#060a12",
+  "theme_color": "#060a12",
+  "icons": [
+    {
+      "src": "/favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml"
+    }
+  ]
+}

@@ -80,9 +80,6 @@ services:
       - backend
     environment:
       NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL:-http://localhost:8000}
-      NODE_ENV: ${NODE_ENV:-development}
-    volumes:
-      - ./frontend/src:/app/src
     networks:
       - drift-network
 
