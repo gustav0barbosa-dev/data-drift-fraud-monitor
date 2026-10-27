@@ -180,13 +180,12 @@ imediatamente. Os notebooks didáticos ficam em `notebooks/` (`01_eda` a `04_res
 | `RUN_MIGRATIONS`         | `true`                                   | Executa `alembic upgrade head` no entrypoint           |
 | `SEED_DATABASE`          | `true`                                   | Insere E1–E4 na primeira subida                        |
 | `BACKEND_RELOAD`         | `true`                                   | Hot-reload do Uvicorn (desligue em produção)           |
-| `PSI_THRESHOLD`          | `0.25`                                   | Limiar crítico de PSI                                  |
-| `KS_PVALUE_THRESHOLD`    | `0.05`                                   | p-valor crítico do KS                                  |
-| `JS_THRESHOLD`           | `0.1`                                    | Limiar crítico de Jensen-Shannon                       |
-| `WASSERSTEIN_THRESHOLD`  | `0.1`                                    | Limiar crítico da Wasserstein (normalizada)            |
 | `MODEL_PATH`             | `/app/models`                            | Diretório dos artefatos `.joblib`                      |
 | `DATASET_PATH`           | `/app/data/paysim.csv`                   | Caminho do PaySim                                      |
 | `NEXT_PUBLIC_API_URL`    | `http://localhost:8000`                  | URL da API usada pelo frontend (build-time)            |
+
+Os limiares de drift usados pela API são definidos em `backend/drift/thresholds.py`,
+não por variáveis de ambiente.
 
 ## Banco de dados e migrations
 
