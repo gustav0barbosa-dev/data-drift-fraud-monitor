@@ -94,8 +94,8 @@ sequenceDiagram
   `/ping`, `/health`, limiares de drift e detecção a partir de valores brutos; endpoints com
   persistência respondem `503 DatabaseUnavailable`. Em produção (`DEBUG=false`) o startup falha
   imediatamente.
-- **Migrations idempotentes**: `alembic upgrade head` converge com o `schema.sql` usado pelo
-  container, sem exigir banco limpo.
+- **Migrations idempotentes**: `alembic upgrade head` é a fonte única do schema, sem exigir
+  banco limpo.
 - **Contrato único**: os schemas Pydantic e os tipos TypeScript descrevem as mesmas entidades;
   normalizadores no cliente absorvem `snake_case` da API.
 

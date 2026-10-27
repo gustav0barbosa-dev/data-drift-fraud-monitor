@@ -203,9 +203,9 @@ alembic revision --autogenerate -m "descrição"   # nova migration a partir dos
 alembic downgrade -1              # desfaz a última
 ```
 
-O `backend/db/schema.sql` é usado pelo Postgres na primeira inicialização do container
-(`docker-entrypoint-initdb.d`). Ele e a migration inicial são convergentes: `alembic upgrade head`
-usa `checkfirst=True`, portanto é seguro rodar sobre um banco já criado pelo `schema.sql`.
+O schema é criado exclusivamente pelo Alembic (`backend/db/migrations/`): o
+`entrypoint.sh` roda `alembic upgrade head` antes de subir a API, e o Postgres do
+compose não executa DDL na primeira inicialização.
 
 Para inspecionar o banco:
 
@@ -361,7 +361,6 @@ data-drift-fraud-monitor/
 │   ├── data/                    # loader, preprocess, simuladores
 │   ├── db/
 │   │   ├── models.py            # 8 tabelas SQLAlchemy
-│   │   ├── schema.sql           # DDL para init do container
 │   │   ├── migrations/          # Alembic (env + versions)
 │   │   └── init_db.py           # seed E1–E4
 │   ├── experiments/             # e1–e4 + análise estatística
