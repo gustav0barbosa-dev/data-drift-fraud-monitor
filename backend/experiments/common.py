@@ -262,6 +262,11 @@ def markdown_table(
     return "\n".join(lines)
 
 
+def format_metric(value: Any) -> str:
+    """Formata um valor numérico para as tabelas dos relatórios."""
+    return "-" if value is None else f"{float(value):.4f}"
+
+
 def metric_row(metrics: Mapping[str, Any]) -> dict[str, Any]:
     """Seleciona as métricas exibidas nos relatórios."""
     return {
@@ -277,6 +282,7 @@ def metric_row(metrics: Mapping[str, Any]) -> dict[str, Any]:
 __all__ = [
     "drift_signals",
     "evaluate_windows",
+    "format_metric",
     "jsonable",
     "markdown_table",
     "metric_row",

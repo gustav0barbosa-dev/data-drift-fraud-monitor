@@ -34,6 +34,7 @@ from data.preprocess import temporal_split
 from data.temporal_simulator import TemporalSimulator
 from experiments.common import (
     evaluate_windows,
+    format_metric,
     markdown_table,
     metric_row,
     save_results,
@@ -195,12 +196,12 @@ def build_markdown_report(results: dict[str, Any]) -> str:
         "",
         "## Resumo",
         "",
-        f"- F1 médio: **{_fmt(aggregate.get('f1'))}** "
-        f"(σ = {_fmt(aggregate.get('f1_std'))})",
-        f"- AUC-ROC médio: **{_fmt(aggregate.get('auc_roc'))}**",
-        f"- PR-AUC médio: **{_fmt(aggregate.get('pr_auc'))}**",
+        f"- F1 médio: **{format_metric(aggregate.get('f1'))}** "
+        f"(σ = {format_metric(aggregate.get('f1_std'))})",
+        f"- AUC-ROC médio: **{format_metric(aggregate.get('auc_roc'))}**",
+        f"- PR-AUC médio: **{format_metric(aggregate.get('pr_auc'))}**",
         f"- Variação do F1 entre a primeira e a última janela: "
-        f"**{_fmt(results['stability']['f1_range'])}**",
+        f"**{format_metric(results['stability']['f1_range'])}**",
         "",
         "Sem drift, espera-se que as métricas permaneçam estáveis entre as "
         "janelas. Qualquer queda sistemática aqui indica instabilidade "
@@ -208,10 +209,6 @@ def build_markdown_report(results: dict[str, Any]) -> str:
         "",
     ]
     return "\n".join(lines)
-
-
-def _fmt(value: Any) -> str:
-    return "—" if value is None else f"{float(value):.4f}"
 
 
 def _parse_args(argv: Optional[Sequence[str]] = None) -> argparse.Namespace:
@@ -251,8 +248,8 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
 
     aggregate = results["aggregate"]
     print(
-        f"[E1] F1={_fmt(aggregate['f1'])} AUC={_fmt(aggregate['auc_roc'])} "
-        f"PR-AUC={_fmt(aggregate['pr_auc'])}"
+        f"[E1] F1={format_metric(aggregate['f1'])} AUC={format_metric(aggregate['auc_roc'])} "
+        f"PR-AUC={format_metric(aggregate['pr_auc'])}"
     )
     print(f"[E1] Saídas: {args.output}")
     return 0

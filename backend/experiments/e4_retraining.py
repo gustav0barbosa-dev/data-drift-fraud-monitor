@@ -46,6 +46,7 @@ from data.temporal_simulator import TemporalSimulator, TemporalWindow
 from experiments.common import (
     drift_signals,
     evaluate_windows,
+    format_metric,
     markdown_table,
     save_results,
     summary_from_windows,
@@ -506,7 +507,7 @@ def build_markdown_report(results: dict[str, Any]) -> str:
         f"(primeiro em {summary['first_retrain_window'] or '—'})",
         f"- Janelas até recuperar 90% do F1 inicial: "
         f"**{summary['time_to_recovery_windows'] if summary['time_to_recovery_windows'] is not None else 'não recuperado'}**",
-        f"- Ganho de F1 nas últimas janelas: **{_fmt(summary['f1_gain_tail'])}**",
+        f"- Ganho de F1 nas últimas janelas: **{format_metric(summary['f1_gain_tail'])}**",
         "",
         "O retreinamento por alerta usa apenas dados rotulados já disponíveis e "
         "só entra em produção na janela seguinte, reproduzindo a latência real "
@@ -514,10 +515,6 @@ def build_markdown_report(results: dict[str, Any]) -> str:
         "",
     ]
     return "\n".join(lines)
-
-
-def _fmt(value: Any) -> str:
-    return "—" if value is None else f"{float(value):.4f}"
 
 
 def _parse_args(argv: Optional[Sequence[str]] = None) -> argparse.Namespace:
@@ -564,9 +561,9 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
     summary = results["summary"]
     print(
         f"[E4] retreinos={summary['retrains']} "
-        f"F1(sem)={_fmt(results['policies']['no_retrain']['aggregate'].get('f1'))} "
-        f"F1(com)={_fmt(results['policies']['alert_retrain']['aggregate'].get('f1'))} "
-        f"ganho_tail={_fmt(summary['f1_gain_tail'])}"
+        f"F1(sem)={format_metric(results['policies']['no_retrain']['aggregate'].get('f1'))} "
+        f"F1(com)={format_metric(results['policies']['alert_retrain']['aggregate'].get('f1'))} "
+        f"ganho_tail={format_metric(summary['f1_gain_tail'])}"
     )
     print(f"[E4] Saídas: {args.output}")
     return 0
