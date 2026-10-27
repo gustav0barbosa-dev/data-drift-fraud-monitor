@@ -1,83 +1,125 @@
 """
-Preditor de fraude.
+Preditor de fraude (T1.8).
+
+``FraudPredictor`` carrega o artefato versionado produzido por
+``ml.train``/``ml.retrain`` e aplica **exatamente** a mesma engenharia de
+features do treino (``ml.model.prepare_inference_frame``), eliminando o
+train/serving skew. Artefatos antigos (estimador puro salvo com joblib) também
+continuam aceitos por compatibilidade.
+
+``MockFraudPredictor`` é o modo degradado usado quando nenhum artefato treinado
+está disponível: mantém a API e o dashboard funcionais sem o pipeline de ML.
 """
-import joblib
+from __future__ import annotations
+
+import logging
+from pathlib import Path
+from typing import Any, Optional
+
 import numpy as np
 import pandas as pd
-from pathlib import Path
-import logging
+
+from ml.model import (
+    DECISION_THRESHOLD,
+    FraudModel,
+    load_artifact,
+    prepare_inference_frame,
+)
 
 logger = logging.getLogger(__name__)
 
 
 class FraudPredictor:
-    """Preditor de fraude baseado em XGBoost."""
-    
-    def __init__(self, model_path: str = None):
-        self.model = None
+    """Preditor de fraude baseado no artefato versionado (XGBoost/sklearn)."""
+
+    def __init__(self, model_path: Optional[str] = None, *, threshold: float = DECISION_THRESHOLD):
+        self.model: Optional[FraudModel] = None
+        self.artifact: Optional[dict[str, Any]] = None
         self.model_path = model_path
-        self.feature_names = None
-        
+        self.feature_names: Optional[list[str]] = None
+        self.threshold = float(threshold)
+        self.mode = "model"
+
         if model_path:
             self.load_model(model_path)
-    
+
+    # ------------------------------------------------------------------
+    # Carregamento
+    # ------------------------------------------------------------------
     def load_model(self, model_path: str) -> None:
-        """Carrega modelo do disco."""
+        """Carrega o artefato do disco (formato versionado ou legado)."""
         path = Path(model_path)
         if not path.exists():
             raise FileNotFoundError(f"Modelo não encontrado: {model_path}")
-        
-        self.model = joblib.load(model_path)
-        self.model_path = model_path
-        logger.info(f"✅ Modelo carregado: {model_path}")
-    
+
+        artifact = load_artifact(path)
+        self.artifact = artifact
+        self.model = FraudModel.from_artifact(artifact)
+        self.feature_names = list(artifact.get("features") or self.model.features)
+        self.threshold = float(
+            artifact.get("decision_threshold", self.threshold)
+        )
+        self.model_path = str(path)
+        self.mode = "model"
+        logger.info(
+            "Modelo carregado: %s (versão=%s, tipo=%s)",
+            path,
+            artifact.get("version", "legacy"),
+            artifact.get("model_type"),
+        )
+
+    @property
+    def version(self) -> Optional[str]:
+        """Versão do artefato carregado (``None`` para artefatos legados)."""
+        return (self.artifact or {}).get("version")
+
     def is_loaded(self) -> bool:
-        """Verifica se modelo está carregado."""
+        """Verifica se o modelo está carregado."""
         return self.model is not None
-    
+
+    # ------------------------------------------------------------------
+    # Inferência
+    # ------------------------------------------------------------------
+    def _prepare(self, transactions: list[dict] | pd.DataFrame) -> pd.DataFrame:
+        if not self.is_loaded():
+            raise RuntimeError("Modelo não carregado")
+
+        frame = prepare_inference_frame(transactions)
+        features = self.feature_names or self.model.features  # type: ignore[union-attr]
+        missing = [column for column in features if column not in frame.columns]
+        if missing:
+            raise ValueError(f"Features ausentes na transação: {missing}")
+        return frame[features]
+
     def predict(self, transaction: dict) -> dict:
         """
-        Realiza predição de uma transação.
-        
-        Args:
-            transaction: Dicionário com features
-            
+        Realiza a predição de uma transação.
+
         Returns:
-            dict: {"is_fraud": bool, "probability": float}
+            dict: ``{"is_fraud": bool, "probability": float, "model_version": str}``
         """
-        if not self.is_loaded():
-            raise RuntimeError("Modelo não carregado")
-        
-        # Converter para DataFrame
-        df = pd.DataFrame([transaction])
-        
-        # Remover colunas não-features
-        drop_cols = ["is_fraud", "is_flagged_fraud", "id", "created_at"]
-        df = df.drop(columns=[c for c in drop_cols if c in df.columns], errors="ignore")
-        
-        # Predição
-        probability = float(self.model.predict_proba(df)[0, 1])
-        is_fraud = probability >= 0.5
-        
+        features = self._prepare([transaction])
+        probability = float(self.model.predict_proba(features)[0])  # type: ignore[union-attr]
         return {
-            "is_fraud": is_fraud,
-            "probability": round(probability, 5)
+            "is_fraud": bool(probability >= self.threshold),
+            "probability": round(probability, 5),
+            "model_version": self.version,
         }
-    
+
     def predict_batch(self, transactions: list[dict]) -> list[dict]:
-        """Realiza predição em lote."""
-        if not self.is_loaded():
-            raise RuntimeError("Modelo não carregado")
-        
-        df = pd.DataFrame(transactions)
-        drop_cols = ["is_fraud", "is_flagged_fraud", "id", "created_at"]
-        df = df.drop(columns=[c for c in drop_cols if c in df.columns], errors="ignore")
-        
-        probabilities = self.model.predict_proba(df)[:, 1]
-        
+        """Realiza a predição de um lote de transações."""
+        if not transactions:
+            return []
+
+        features = self._prepare(transactions)
+        probabilities = self.model.predict_proba(features)  # type: ignore[union-attr]
         return [
-            {"is_fraud": bool(p >= 0.5), "probability": round(float(p), 5)}
-            for p in probabilities
+            {
+                "is_fraud": bool(probability >= self.threshold),
+                "probability": round(float(probability), 5),
+                "model_version": self.version,
+            }
+            for probability in np.asarray(probabilities).ravel()
         ]
 
 
@@ -94,6 +136,7 @@ class MockFraudPredictor:
     model = None
     feature_names = None
     mode = "mock"
+    version = "mock-0.0.0"
 
     # Peso por tipo de transação observado no PaySim.
     _TYPE_WEIGHTS = {
@@ -143,11 +186,15 @@ class MockFraudPredictor:
         """Predição heurística determinística."""
         probability = self._probability(transaction)
         return {
-            "is_fraud": probability >= 0.5,
+            "is_fraud": probability >= DECISION_THRESHOLD,
             "probability": round(probability, 5),
+            "model_version": self.version,
             "mode": "mock",
         }
 
     def predict_batch(self, transactions: list[dict]) -> list[dict]:
         """Predição heurística em lote."""
         return [self.predict(transaction) for transaction in transactions]
+
+
+__all__ = ["FraudPredictor", "MockFraudPredictor"]

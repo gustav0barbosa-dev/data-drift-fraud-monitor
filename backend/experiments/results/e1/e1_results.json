@@ -1,0 +1,422 @@
+{
+  "experiment": "E1",
+  "title": "Desempenho do baseline sem Data Drift",
+  "generated_at": "2026-10-27T13:15:24.307128+00:00",
+  "config": {
+    "rows": 60000,
+    "n_windows": 12,
+    "train_ratio": 0.7,
+    "seed": 42,
+    "fraud_rate": 0.005,
+    "dataset": "sintético (PaySim)",
+    "save_model": true
+  },
+  "dataset": {
+    "rows": 60000,
+    "columns": [
+      "step",
+      "type",
+      "amount",
+      "name_orig",
+      "old_balance_org",
+      "new_balance_org",
+      "name_dest",
+      "old_balance_dest",
+      "new_balance_dest",
+      "is_fraud",
+      "is_flagged_fraud"
+    ],
+    "fraud_count": 299,
+    "fraud_rate": 0.0049833333333333335,
+    "step_min": 1,
+    "step_max": 744,
+    "types": {
+      "CASH_OUT": 21445,
+      "PAYMENT": 20179,
+      "CASH_IN": 13193,
+      "TRANSFER": 5126,
+      "DEBIT": 57
+    }
+  },
+  "split": {
+    "train_rows": 42000,
+    "test_rows": 18000,
+    "train_fraud_rate": 0.004952,
+    "test_fraud_rate": 0.005056,
+    "split_step": 519
+  },
+  "model": {
+    "version": "v1.1.0-xgb",
+    "backend": "XGBoost",
+    "model_type": "XGBoost",
+    "path": "C:\\Users\\gsilva\\Documents\\data-drift-fraud-monitor\\backend\\models\\v1.1.0-xgb.joblib",
+    "feature_importance": [
+      {
+        "feature": "balance_diff_dest",
+        "importance": 0.5463
+      },
+      {
+        "feature": "amount_ratio",
+        "importance": 0.2007
+      },
+      {
+        "feature": "new_balance_dest",
+        "importance": 0.1194
+      },
+      {
+        "feature": "type",
+        "importance": 0.0459
+      },
+      {
+        "feature": "balance_diff_org",
+        "importance": 0.0299
+      },
+      {
+        "feature": "new_balance_org",
+        "importance": 0.0252
+      },
+      {
+        "feature": "old_balance_dest",
+        "importance": 0.013
+      },
+      {
+        "feature": "old_balance_org",
+        "importance": 0.0125
+      },
+      {
+        "feature": "amount",
+        "importance": 0.0072
+      }
+    ]
+  },
+  "baseline_test_metrics": {
+    "accuracy": 0.998667,
+    "precision": 0.876404,
+    "recall": 0.857143,
+    "f1": 0.866667,
+    "auc_roc": 0.998306,
+    "pr_auc": 0.913216,
+    "threshold": 0.5,
+    "total": 18000,
+    "fraud_rate": 0.005056,
+    "true_positives": 78,
+    "false_positives": 11,
+    "true_negatives": 17898,
+    "false_negatives": 13
+  },
+  "baseline_train_metrics": {
+    "accuracy": 0.999762,
+    "precision": 0.954128,
+    "recall": 1.0,
+    "f1": 0.976526,
+    "auc_roc": 1.0,
+    "pr_auc": 1.0,
+    "threshold": 0.5,
+    "total": 42000,
+    "fraud_rate": 0.004952,
+    "true_positives": 208,
+    "false_positives": 10,
+    "true_negatives": 41782,
+    "false_negatives": 0
+  },
+  "training_holdout_metrics": {
+    "accuracy": 0.998667,
+    "precision": 0.876404,
+    "recall": 0.857143,
+    "f1": 0.866667,
+    "auc_roc": 0.998306,
+    "pr_auc": 0.913216,
+    "threshold": 0.5,
+    "total": 18000,
+    "fraud_rate": 0.005056,
+    "true_positives": 78,
+    "false_positives": 11,
+    "true_negatives": 17898,
+    "false_negatives": 13
+  },
+  "aggregate": {
+    "accuracy": 0.998667,
+    "precision": 0.872481,
+    "recall": 0.866793,
+    "f1": 0.86352,
+    "auc_roc": 0.998317,
+    "pr_auc": 0.921072,
+    "f1_std": 0.097023,
+    "windows": 12,
+    "rows": 18000,
+    "fraud_rate": 0.005056
+  },
+  "stability": {
+    "f1_first_window": 0.8,
+    "f1_last_window": 0.75,
+    "f1_mean": 0.86352,
+    "f1_std": 0.097023,
+    "f1_range": -0.05
+  },
+  "windows": [
+    {
+      "index": 0,
+      "label": "W01",
+      "start_step": 519,
+      "end_step": 538,
+      "rows": 1500,
+      "metrics": {
+        "accuracy": 0.998,
+        "precision": 0.857143,
+        "recall": 0.75,
+        "f1": 0.8,
+        "auc_roc": 0.996733,
+        "pr_auc": 0.841698,
+        "threshold": 0.5,
+        "total": 1500,
+        "fraud_rate": 0.005333,
+        "true_positives": 6,
+        "false_positives": 1,
+        "true_negatives": 1491,
+        "false_negatives": 2
+      }
+    },
+    {
+      "index": 1,
+      "label": "W02",
+      "start_step": 538,
+      "end_step": 556,
+      "rows": 1500,
+      "metrics": {
+        "accuracy": 0.999333,
+        "precision": 1.0,
+        "recall": 0.888889,
+        "f1": 0.941176,
+        "auc_roc": 0.999404,
+        "pr_auc": 0.947712,
+        "threshold": 0.5,
+        "total": 1500,
+        "fraud_rate": 0.006,
+        "true_positives": 8,
+        "false_positives": 0,
+        "true_negatives": 1491,
+        "false_negatives": 1
+      }
+    },
+    {
+      "index": 2,
+      "label": "W03",
+      "start_step": 556,
+      "end_step": 574,
+      "rows": 1500,
+      "metrics": {
+        "accuracy": 0.999333,
+        "precision": 1.0,
+        "recall": 0.833333,
+        "f1": 0.909091,
+        "auc_roc": 0.998661,
+        "pr_auc": 0.888889,
+        "threshold": 0.5,
+        "total": 1500,
+        "fraud_rate": 0.004,
+        "true_positives": 5,
+        "false_positives": 0,
+        "true_negatives": 1494,
+        "false_negatives": 1
+      }
+    },
+    {
+      "index": 3,
+      "label": "W04",
+      "start_step": 574,
+      "end_step": 593,
+      "rows": 1500,
+      "metrics": {
+        "accuracy": 0.997333,
+        "precision": 0.666667,
+        "recall": 0.666667,
+        "f1": 0.666667,
+        "auc_roc": 0.98996,
+        "pr_auc": 0.741028,
+        "threshold": 0.5,
+        "total": 1500,
+        "fraud_rate": 0.004,
+        "true_positives": 4,
+        "false_positives": 2,
+        "true_negatives": 1492,
+        "false_negatives": 2
+      }
+    },
+    {
+      "index": 4,
+      "label": "W05",
+      "start_step": 593,
+      "end_step": 612,
+      "rows": 1500,
+      "metrics": {
+        "accuracy": 1.0,
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0,
+        "auc_roc": 1.0,
+        "pr_auc": 1.0,
+        "threshold": 0.5,
+        "total": 1500,
+        "fraud_rate": 0.004667,
+        "true_positives": 7,
+        "false_positives": 0,
+        "true_negatives": 1493,
+        "false_negatives": 0
+      }
+    },
+    {
+      "index": 5,
+      "label": "W06",
+      "start_step": 612,
+      "end_step": 632,
+      "rows": 1500,
+      "metrics": {
+        "accuracy": 0.998,
+        "precision": 0.875,
+        "recall": 0.777778,
+        "f1": 0.823529,
+        "auc_roc": 0.998286,
+        "pr_auc": 0.87218,
+        "threshold": 0.5,
+        "total": 1500,
+        "fraud_rate": 0.006,
+        "true_positives": 7,
+        "false_positives": 1,
+        "true_negatives": 1490,
+        "false_negatives": 2
+      }
+    },
+    {
+      "index": 6,
+      "label": "W07",
+      "start_step": 632,
+      "end_step": 650,
+      "rows": 1500,
+      "metrics": {
+        "accuracy": 0.997333,
+        "precision": 0.818182,
+        "recall": 0.818182,
+        "f1": 0.818182,
+        "auc_roc": 0.998474,
+        "pr_auc": 0.904401,
+        "threshold": 0.5,
+        "total": 1500,
+        "fraud_rate": 0.007333,
+        "true_positives": 9,
+        "false_positives": 2,
+        "true_negatives": 1487,
+        "false_negatives": 2
+      }
+    },
+    {
+      "index": 7,
+      "label": "W08",
+      "start_step": 650,
+      "end_step": 669,
+      "rows": 1500,
+      "metrics": {
+        "accuracy": 0.999333,
+        "precision": 0.888889,
+        "recall": 1.0,
+        "f1": 0.941176,
+        "auc_roc": 1.0,
+        "pr_auc": 1.0,
+        "threshold": 0.5,
+        "total": 1500,
+        "fraud_rate": 0.005333,
+        "true_positives": 8,
+        "false_positives": 1,
+        "true_negatives": 1491,
+        "false_negatives": 0
+      }
+    },
+    {
+      "index": 8,
+      "label": "W09",
+      "start_step": 669,
+      "end_step": 688,
+      "rows": 1500,
+      "metrics": {
+        "accuracy": 0.998,
+        "precision": 0.875,
+        "recall": 0.777778,
+        "f1": 0.823529,
+        "auc_roc": 0.998435,
+        "pr_auc": 0.87716,
+        "threshold": 0.5,
+        "total": 1500,
+        "fraud_rate": 0.006,
+        "true_positives": 7,
+        "false_positives": 1,
+        "true_negatives": 1490,
+        "false_negatives": 2
+      }
+    },
+    {
+      "index": 9,
+      "label": "W10",
+      "start_step": 688,
+      "end_step": 707,
+      "rows": 1500,
+      "metrics": {
+        "accuracy": 1.0,
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0,
+        "auc_roc": 1.0,
+        "pr_auc": 1.0,
+        "threshold": 0.5,
+        "total": 1500,
+        "fraud_rate": 0.004,
+        "true_positives": 6,
+        "false_positives": 0,
+        "true_negatives": 1494,
+        "false_negatives": 0
+      }
+    },
+    {
+      "index": 10,
+      "label": "W11",
+      "start_step": 707,
+      "end_step": 726,
+      "rows": 1500,
+      "metrics": {
+        "accuracy": 0.998667,
+        "precision": 0.888889,
+        "recall": 0.888889,
+        "f1": 0.888889,
+        "auc_roc": 0.999851,
+        "pr_auc": 0.979798,
+        "threshold": 0.5,
+        "total": 1500,
+        "fraud_rate": 0.006,
+        "true_positives": 8,
+        "false_positives": 1,
+        "true_negatives": 1490,
+        "false_negatives": 1
+      }
+    },
+    {
+      "index": 11,
+      "label": "W12",
+      "start_step": 726,
+      "end_step": 744,
+      "rows": 1500,
+      "metrics": {
+        "accuracy": 0.998667,
+        "precision": 0.6,
+        "recall": 1.0,
+        "f1": 0.75,
+        "auc_roc": 1.0,
+        "pr_auc": 1.0,
+        "threshold": 0.5,
+        "total": 1500,
+        "fraud_rate": 0.002,
+        "true_positives": 3,
+        "false_positives": 2,
+        "true_negatives": 1495,
+        "false_negatives": 0
+      }
+    }
+  ]
+}

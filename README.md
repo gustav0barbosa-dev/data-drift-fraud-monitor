@@ -135,6 +135,39 @@ npm run dev
 > `degraded`): os endpoints sem persistência continuam funcionando e os demais respondem
 > `503 DatabaseUnavailable`. O dashboard também funciona offline, com dados de demonstração.
 
+### Pipeline de ML (Pessoa 1)
+
+O pacote `backend/data` + `backend/ml` cobre o ciclo completo do modelo:
+
+```bash
+cd backend
+
+# D1 — dataset: usa data/paysim.csv quando existe; caso contrário gera uma
+# amostra sintética determinística com o mesmo contrato do PaySim.
+python -m data.loader --rows 60000 --out ../data/paysim_sample.csv
+
+# D2 — treina o baseline XGBoost e salva backend/models/v1.1.0-xgb.joblib
+python -m ml.train --rows 60000
+
+# Opcional (com o PostgreSQL no ar): registra o baseline como modelo ativo
+python -m ml.train --rows 60000 --register --experiment-id 1
+
+# D6 — experimentos E1 (sem drift), E2 (cenários) e E4 (retreinamento)
+python -m experiments.e1_no_drift --rows 60000
+python -m experiments.e2_drift_levels --rows 60000
+python -m experiments.e4_retraining --rows 60000
+```
+
+As 9 features do contrato são `amount`, `old_balance_org`, `new_balance_org`,
+`old_balance_dest`, `new_balance_dest`, `balance_diff_org`, `balance_diff_dest`,
+`amount_ratio` e `type` (mapa fixo `PAYMENT=0 … DEBIT=4`). Treino e inferência usam o
+mesmo `build_features`, evitando train/serving skew.
+
+Quando um artefato está disponível, a API o carrega no startup e passa a responder
+`mode: model`; `POST /api/v1/retrain/` executa o retreinamento em background, persiste a
+nova versão em `model_versions`/`performance`, registra alertas e promove o novo modelo
+imediatamente. Os notebooks didáticos ficam em `notebooks/` (`01_eda` a `04_results_analysis`).
+
 ## Variáveis de ambiente
 
 | Variável                 | Padrão                                   | Descrição                                              |
@@ -233,6 +266,7 @@ Documentação interativa em `/docs` (Swagger) e `/redoc`. Todos os erros seguem
 | ------ | --------------------------------------------------- | ------------------------------------------- |
 | POST   | `/api/v1/retrain/`                                  | Dispara retreinamento (202, background)     |
 | GET    | `/api/v1/retrain/history/{experiment_id}`           | Histórico de retreinamentos                 |
+| GET    | `/api/v1/retrain/versions/{experiment_id}`          | Versões de modelo do experimento            |
 | GET    | `/api/v1/metrics/performance/{model_version_id}`    | Série de desempenho por janela              |
 | GET    | `/api/v1/metrics/performance/summary/{experiment_id}` | Resumo de F1 por versão                   |
 | GET    | `/api/v1/models/{experiment_id}`                    | Versões de modelo + ativa                   |
@@ -259,8 +293,23 @@ curl -X POST http://localhost:8000/api/v1/drift/detect/feature \
 | E3 | Comparar métodos de detecção                      | Pessoa 2         | Sensibilidade, especificidade, latência      |
 | E4 | Avaliar se o retreinamento recupera desempenho    | Pessoa 1 + 2     | Recuperação de F1, tempo de recuperação      |
 
+Detalhes do pipeline, features, artefatos e decisões em
+[`docs/pipeline_ml.md`](docs/pipeline_ml.md).
+
 Resultados do E3 em [`backend/experiments/results/e3/e3_results.json`](backend/experiments/results/e3/e3_results.json)
 e relatório em [`docs/relatorio_E3.md`](docs/relatorio_E3.md).
+
+Os experimentos da Pessoa 1 geram, em `backend/experiments/results/`:
+
+| Experimento | Saídas | Conteúdo |
+| ----------- | ------ | -------- |
+| E1 | `e1/e1_results.json`, `e1/e1_windows.csv`, `e1/e1_report.md` | Métricas do baseline em janelas sem drift |
+| E2 | `e2/e2_results.json`, `e2/e2_windows.csv`, `e2/e2_summary.csv`, `e2/e2_report.md` | Degradação por cenário + PSI/KS por janela |
+| E4 | `e4/e4_results.json`, `e4/e4_windows.csv`, `e4/e4_retrains.csv`, `e4/e4_report.md` | Comparação sem retreino × retreino por alerta |
+
+Cada execução é determinística para a mesma `--seed` (42 por padrão). O modo
+`--no-save-model` (E1) evita gravar o artefato; `--fraud-rate` permite aumentar a
+prevalência da fraude em testes rápidos.
 
 ## Frontend
 
@@ -317,6 +366,8 @@ data-drift-fraud-monitor/
 │   │   ├── migrations/          # Alembic (env + versions)
 │   │   └── init_db.py           # seed E1–E4
 │   ├── experiments/             # e1–e4 + análise estatística
+│   │   └── results/             # D6: JSON, CSVs e relatórios por experimento
+│   ├── models/                  # D2: artefatos versionados (gitignored)
 │   ├── alembic.ini
 │   ├── entrypoint.sh            # espera banco → migrations → seed → uvicorn
 │   └── Dockerfile
@@ -327,9 +378,10 @@ data-drift-fraud-monitor/
 │   │   ├── hooks/ context/ data/ lib/ services/ styles/ types/
 │   ├── Dockerfile
 │   └── README.md
-├── docs/                        # arquitetura, banco, API, métodos, E3
-├── notebooks/                   # EDA, baseline, simulação, análise
-├── tests/                       # pytest (API, drift, E3, estatística)
+├── docs/                        # arquitetura, banco, API, métodos, pipeline de ML, E3
+├── notebooks/                   # 01_eda, 02_baseline_model, 03_drift_simulation, 04_results_analysis
+├── data/                        # D1: paysim.csv real ou paysim_sample.csv (gitignored)
+├── tests/                       # pytest (API, drift, P1, E3, estatística)
 ├── scripts/                     # Makefile e setup
 ├── docker-compose.yml
 └── README.md
@@ -347,12 +399,12 @@ data-drift-fraud-monitor/
 
 | ID | Entregável                            | Status |
 | -- | ------------------------------------- | ------ |
-| D1 | Dataset processado e simulado          | P1     |
-| D2 | Modelo baseline treinado               | P1     |
-| D3 | Módulos de detecção de drift           | P2     |
+| D1 | Dataset processado e simulado          | ✅     |
+| D2 | Modelo baseline treinado               | ✅     |
+| D3 | Módulos de detecção de drift           | ✅     |
 | D4 | API REST funcional                     | ✅     |
 | D5 | Dashboard interativo                   | ✅     |
-| D6 | Resultados dos 4 experimentos          | E1–E3 ✅ · E4 em andamento |
+| D6 | Resultados dos 4 experimentos          | ✅ E1–E4 |
 | D7 | Artigo científico                      | —      |
 | D8 | Documentação técnica                   | ✅     |
 | D9 | Repositório GitHub                     | ✅     |

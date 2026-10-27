@@ -1,0 +1,5 @@
+# Dependências dos notebooks da Pessoa 1 (além de backend/requirements.txt)
+jupyterlab>=4.0
+matplotlib>=3.8
+seaborn>=0.13
+ipykernel>=6.29

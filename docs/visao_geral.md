@@ -83,7 +83,13 @@ sequenceDiagram
 - **Detecção sem banco**: `/api/v1/drift/detect/feature` permite calcular os quatro métodos a partir
   de valores brutos, o que viabiliza o sandbox da Pessoa 2 e testes rápidos.
 - **Preditor heurístico**: sem artefato treinado, a API responde com probabilidade determinística
-  (`mode: mock`), mantendo o produto demonstrável antes do pipeline de ML.
+  (`mode: mock`), mantendo o produto demonstrável antes do pipeline de ML. Com o artefato
+  versionado (`v1.1.0-xgb`), o mesmo contrato passa a `mode: model`.
+- **Pipeline de ML reprodutível**: XGBoost com fallback para scikit-learn; PaySim real quando
+  disponível ou gerador sintético determinístico com o mesmo contrato. Treino e inferência
+  compartilham as 9 features de `data/preprocess.py`.
+- **Retreinamento por alerta**: a nova versão entra em produção imediatamente após o treino,
+  com limiar recalibrado na validação temporal; o E4 mede o ganho de F1 ao longo das janelas.
 - **Modo degradado em desenvolvimento**: sem PostgreSQL e com `DEBUG=true`, a API sobe e expõe
   `/ping`, `/health`, limiares de drift e detecção a partir de valores brutos; endpoints com
   persistência respondem `503 DatabaseUnavailable`. Em produção (`DEBUG=false`) o startup falha
@@ -96,6 +102,7 @@ sequenceDiagram
 ## Documentos relacionados
 
 - [`estrutura_API.md`](estrutura_API.md) — referência dos endpoints
+- [`pipeline_ml.md`](pipeline_ml.md) — dataset, features, modelo, experimentos E1/E2/E4
 - [`modelagem_banco.md`](modelagem_banco.md) — ER, índices e migrations
 - [`metodos_drift.md`](metodos_drift.md) — PSI, KS, JS e Wasserstein
 - [`relatorio_E3.md`](relatorio_E3.md) — comparação de sensibilidade

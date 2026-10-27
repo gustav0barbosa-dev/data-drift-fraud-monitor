@@ -1,0 +1,1995 @@
+{
+  "experiment": "E2",
+  "title": "Impacto dos cenários de Data Drift",
+  "generated_at": "2026-10-27T13:15:33.632774+00:00",
+  "config": {
+    "rows": 60000,
+    "n_windows": 12,
+    "train_ratio": 0.7,
+    "seed": 42,
+    "fraud_rate": 0.005,
+    "dataset": "sintético (PaySim)",
+    "drift_features": [
+      "amount",
+      "old_balance_org",
+      "new_balance_org",
+      "balance_diff_org",
+      "amount_ratio",
+      "type"
+    ]
+  },
+  "dataset": {
+    "rows": 60000,
+    "columns": [
+      "step",
+      "type",
+      "amount",
+      "name_orig",
+      "old_balance_org",
+      "new_balance_org",
+      "name_dest",
+      "old_balance_dest",
+      "new_balance_dest",
+      "is_fraud",
+      "is_flagged_fraud"
+    ],
+    "fraud_count": 299,
+    "fraud_rate": 0.0049833333333333335,
+    "step_min": 1,
+    "step_max": 744,
+    "types": {
+      "CASH_OUT": 21445,
+      "PAYMENT": 20179,
+      "CASH_IN": 13193,
+      "TRANSFER": 5126,
+      "DEBIT": 57
+    }
+  },
+  "split": {
+    "train_rows": 42000,
+    "test_rows": 18000,
+    "train_fraud_rate": 0.004952,
+    "test_fraud_rate": 0.005056,
+    "split_step": 519
+  },
+  "model": {
+    "version": "v1.1.0-xgb",
+    "backend": "XGBoost",
+    "model_type": "XGBoost",
+    "path": null
+  },
+  "baseline_test_metrics": {
+    "accuracy": 0.998667,
+    "precision": 0.876404,
+    "recall": 0.857143,
+    "f1": 0.866667,
+    "auc_roc": 0.998306,
+    "pr_auc": 0.913216,
+    "threshold": 0.5,
+    "total": 18000,
+    "fraud_rate": 0.005056,
+    "true_positives": 78,
+    "false_positives": 11,
+    "true_negatives": 17898,
+    "false_negatives": 13
+  },
+  "scenarios": {
+    "none": {
+      "level": "none",
+      "label": "Sem drift",
+      "description": "Controle: mesma distribuição da referência.",
+      "intensity": 0.0,
+      "aggregate": {
+        "accuracy": 0.998667,
+        "precision": 0.872481,
+        "recall": 0.866793,
+        "f1": 0.86352,
+        "auc_roc": 0.998317,
+        "pr_auc": 0.921072,
+        "f1_std": 0.097023,
+        "windows": 12,
+        "rows": 18000,
+        "fraud_rate": 0.005056
+      },
+      "drift": {
+        "detected_windows": 1,
+        "windows": 12,
+        "max_psi": 0.017220331490529976,
+        "mean_psi": 0.010069
+      },
+      "windows": [
+        {
+          "index": 0,
+          "label": "W01",
+          "start_step": 519,
+          "end_step": 538,
+          "rows": 1500,
+          "drift_intensity": 0.0,
+          "drift": {
+            "window": "W01",
+            "max_psi": 0.012264173754193957,
+            "max_severity": "none",
+            "is_drift": false,
+            "drifted_features": []
+          },
+          "metrics": {
+            "accuracy": 0.998,
+            "precision": 0.857143,
+            "recall": 0.75,
+            "f1": 0.8,
+            "auc_roc": 0.996733,
+            "pr_auc": 0.841698,
+            "threshold": 0.5,
+            "total": 1500,
+            "fraud_rate": 0.005333,
+            "true_positives": 6,
+            "false_positives": 1,
+            "true_negatives": 1491,
+            "false_negatives": 2
+          }
+        },
+        {
+          "index": 1,
+          "label": "W02",
+          "start_step": 538,
+          "end_step": 556,
+          "rows": 1500,
+          "drift_intensity": 0.0,
+          "drift": {
+            "window": "W02",
+            "max_psi": 0.017220331490529976,
+            "max_severity": "warning",
+            "is_drift": false,
+            "drifted_features": []
+          },
+          "metrics": {
+            "accuracy": 0.999333,
+            "precision": 1.0,
+            "recall": 0.888889,
+            "f1": 0.941176,
+            "auc_roc": 0.999404,
+            "pr_auc": 0.947712,
+            "threshold": 0.5,
+            "total": 1500,
+            "fraud_rate": 0.006,
+            "true_positives": 8,
+            "false_positives": 0,
+            "true_negatives": 1491,
+            "false_negatives": 1
+          }
+        },
+        {
+          "index": 2,
+          "label": "W03",
+          "start_step": 556,
+          "end_step": 574,
+          "rows": 1500,
+          "drift_intensity": 0.0,
+          "drift": {
+            "window": "W03",
+            "max_psi": 0.011166829932736605,
+            "max_severity": "none",
+            "is_drift": false,
+            "drifted_features": []
+          },
+          "metrics": {
+            "accuracy": 0.999333,
+            "precision": 1.0,
+            "recall": 0.833333,
+            "f1": 0.909091,
+            "auc_roc": 0.998661,
+            "pr_auc": 0.888889,
+            "threshold": 0.5,
+            "total": 1500,
+            "fraud_rate": 0.004,
+            "true_positives": 5,
+            "false_positives": 0,
+            "true_negatives": 1494,
+            "false_negatives": 1
+          }
+        },
+        {
+          "index": 3,
+          "label": "W04",
+          "start_step": 574,
+          "end_step": 593,
+          "rows": 1500,
+          "drift_intensity": 0.0,
+          "drift": {
+            "window": "W04",
+            "max_psi": 0.00786951847777363,
+            "max_severity": "none",
+            "is_drift": false,
+            "drifted_features": []
+          },
+          "metrics": {
+            "accuracy": 0.997333,
+            "precision": 0.666667,
+            "recall": 0.666667,
+            "f1": 0.666667,
+            "auc_roc": 0.98996,
+            "pr_auc": 0.741028,
+            "threshold": 0.5,
+            "total": 1500,
+            "fraud_rate": 0.004,
+            "true_positives": 4,
+            "false_positives": 2,
+            "true_negatives": 1492,
+            "false_negatives": 2
+          }
+        },
+        {
+          "index": 4,
+          "label": "W05",
+          "start_step": 593,
+          "end_step": 612,
+          "rows": 1500,
+          "drift_intensity": 0.0,
+          "drift": {
+            "window": "W05",
+            "max_psi": 0.010531685694040744,
+            "max_severity": "none",
+            "is_drift": false,
+            "drifted_features": []
+          },
+          "metrics": {
+            "accuracy": 1.0,
+            "precision": 1.0,
+            "recall": 1.0,
+            "f1": 1.0,
+            "auc_roc": 1.0,
+            "pr_auc": 1.0,
+            "threshold": 0.5,
+            "total": 1500,
+            "fraud_rate": 0.004667,
+            "true_positives": 7,
+            "false_positives": 0,
+            "true_negatives": 1493,
+            "false_negatives": 0
+          }
+        },
+        {
+          "index": 5,
+          "label": "W06",
+          "start_step": 612,
+          "end_step": 632,
+          "rows": 1500,
+          "drift_intensity": 0.0,
+          "drift": {
+            "window": "W06",
+            "max_psi": 0.006705331881016137,
+            "max_severity": "none",
+            "is_drift": false,
+            "drifted_features": []
+          },
+          "metrics": {
+            "accuracy": 0.998,
+            "precision": 0.875,
+            "recall": 0.777778,
+            "f1": 0.823529,
+            "auc_roc": 0.998286,
+            "pr_auc": 0.87218,
+            "threshold": 0.5,
+            "total": 1500,
+            "fraud_rate": 0.006,
+            "true_positives": 7,
+            "false_positives": 1,
+            "true_negatives": 1490,
+            "false_negatives": 2
+          }
+        },
+        {
+          "index": 6,
+          "label": "W07",
+          "start_step": 632,
+          "end_step": 650,
+          "rows": 1500,
+          "drift_intensity": 0.0,
+          "drift": {
+            "window": "W07",
+            "max_psi": 0.006986190215496539,
+            "max_severity": "none",
+            "is_drift": false,
+            "drifted_features": []
+          },
+          "metrics": {
+            "accuracy": 0.997333,
+            "precision": 0.818182,
+            "recall": 0.818182,
+            "f1": 0.818182,
+            "auc_roc": 0.998474,
+            "pr_auc": 0.904401,
+            "threshold": 0.5,
+            "total": 1500,
+            "fraud_rate": 0.007333,
+            "true_positives": 9,
+            "false_positives": 2,
+            "true_negatives": 1487,
+            "false_negatives": 2
+          }
+        },
+        {
+          "index": 7,
+          "label": "W08",
+          "start_step": 650,
+          "end_step": 669,
+          "rows": 1500,
+          "drift_intensity": 0.0,
+          "drift": {
+            "window": "W08",
+            "max_psi": 0.0072189694750826585,
+            "max_severity": "warning",
+            "is_drift": false,
+            "drifted_features": []
+          },
+          "metrics": {
+            "accuracy": 0.999333,
+            "precision": 0.888889,
+            "recall": 1.0,
+            "f1": 0.941176,
+            "auc_roc": 1.0,
+            "pr_auc": 1.0,
+            "threshold": 0.5,
+            "total": 1500,
+            "fraud_rate": 0.005333,
+            "true_positives": 8,
+            "false_positives": 1,
+            "true_negatives": 1491,
+            "false_negatives": 0
+          }
+        },
+        {
+          "index": 8,
+          "label": "W09",
+          "start_step": 669,
+          "end_step": 688,
+          "rows": 1500,
+          "drift_intensity": 0.0,
+          "drift": {
+            "window": "W09",
+            "max_psi": 0.0092930393725116,
+            "max_severity": "none",
+            "is_drift": false,
+            "drifted_features": []
+          },
+          "metrics": {
+            "accuracy": 0.998,
+            "precision": 0.875,
+            "recall": 0.777778,
+            "f1": 0.823529,
+            "auc_roc": 0.998435,
+            "pr_auc": 0.87716,
+            "threshold": 0.5,
+            "total": 1500,
+            "fraud_rate": 0.006,
+            "true_positives": 7,
+            "false_positives": 1,
+            "true_negatives": 1490,
+            "false_negatives": 2
+          }
+        },
+        {
+          "index": 9,
+          "label": "W10",
+          "start_step": 688,
+          "end_step": 707,
+          "rows": 1500,
+          "drift_intensity": 0.0,
+          "drift": {
+            "window": "W10",
+            "max_psi": 0.01172576107070055,
+            "max_severity": "critical",
+            "is_drift": true,
+            "drifted_features": [
+              "amount_ratio"
+            ]
+          },
+          "metrics": {
+            "accuracy": 1.0,
+            "precision": 1.0,
+            "recall": 1.0,
+            "f1": 1.0,
+            "auc_roc": 1.0,
+            "pr_auc": 1.0,
+            "threshold": 0.5,
+            "total": 1500,
+            "fraud_rate": 0.004,
+            "true_positives": 6,
+            "false_positives": 0,
+            "true_negatives": 1494,
+            "false_negatives": 0
+          }
+        },
+        {
+          "index": 10,
+          "label": "W11",
+          "start_step": 707,
+          "end_step": 726,
+          "rows": 1500,
+          "drift_intensity": 0.0,
+          "drift": {
+            "window": "W11",
+            "max_psi": 0.007006765809348447,
+            "max_severity": "none",
+            "is_drift": false,
+            "drifted_features": []
+          },
+          "metrics": {
+            "accuracy": 0.998667,
+            "precision": 0.888889,
+            "recall": 0.888889,
+            "f1": 0.888889,
+            "auc_roc": 0.999851,
+            "pr_auc": 0.979798,
+            "threshold": 0.5,
+            "total": 1500,
+            "fraud_rate": 0.006,
+            "true_positives": 8,
+            "false_positives": 1,
+            "true_negatives": 1490,
+            "false_negatives": 1
+          }
+        },
+        {
+          "index": 11,
+          "label": "W12",
+          "start_step": 726,
+          "end_step": 744,
+          "rows": 1500,
+          "drift_intensity": 0.0,
+          "drift": {
+            "window": "W12",
+            "max_psi": 0.012833676571717334,
+            "max_severity": "none",
+            "is_drift": false,
+            "drifted_features": []
+          },
+          "metrics": {
+            "accuracy": 0.998667,
+            "precision": 0.6,
+            "recall": 1.0,
+            "f1": 0.75,
+            "auc_roc": 1.0,
+            "pr_auc": 1.0,
+            "threshold": 0.5,
+            "total": 1500,
+            "fraud_rate": 0.002,
+            "true_positives": 3,
+            "false_positives": 2,
+            "true_negatives": 1495,
+            "false_negatives": 0
+          }
+        }
+      ],
+      "degradation_vs_none": {
+        "accuracy": {
+          "absolute": 0.0,
+          "relative": 0.0
+        },
+        "precision": {
+          "absolute": 0.0,
+          "relative": 0.0
+        },
+        "recall": {
+          "absolute": 0.0,
+          "relative": 0.0
+        },
+        "f1": {
+          "absolute": 0.0,
+          "relative": 0.0
+        },
+        "auc_roc": {
+          "absolute": 0.0,
+          "relative": 0.0
+        },
+        "pr_auc": {
+          "absolute": 0.0,
+          "relative": 0.0
+        }
+      }
+    },
+    "low": {
+      "level": "low",
+      "label": "Drift baixo",
+      "description": "Deslocamento leve de valores/saldos e 2% de nova tipologia.",
+      "intensity": 0.35,
+      "aggregate": {
+        "accuracy": 0.990944,
+        "precision": 0.720716,
+        "recall": 0.30406,
+        "f1": 0.41762,
+        "auc_roc": 0.852502,
+        "pr_auc": 0.350173,
+        "f1_std": 0.177618,
+        "windows": 12,
+        "rows": 18000,
+        "fraud_rate": 0.011278
+      },
+      "drift": {
+        "detected_windows": 12,
+        "windows": 12,
+        "max_psi": 0.0568714613872564,
+        "mean_psi": 0.038424
+      },
+      "windows": [
+        {
+          "index": 0,
+          "label": "W01",
+          "start_step": 519,
+          "end_step": 538,
+          "rows": 1500,
+          "drift_intensity": 0.35,
+          "drift": {
+            "window": "W01",
+            "max_psi": 0.03469600171130999,
+            "max_severity": "critical",
+            "is_drift": true,
+            "drifted_features": [
+              "amount",
+              "balance_diff_org",
+              "amount_ratio"
+            ]
+          },
+          "metrics": {
+            "accuracy": 0.988667,
+            "precision": 0.555556,
+            "recall": 0.277778,
+            "f1": 0.37037,
+            "auc_roc": 0.890801,
+            "pr_auc": 0.325619,
+            "threshold": 0.5,
+            "total": 1500,
+            "fraud_rate": 0.012,
+            "true_positives": 5,
+            "false_positives": 4,
+            "true_negatives": 1478,
+            "false_negatives": 13
+          }
+        },
+        {
+          "index": 1,
+          "label": "W02",
+          "start_step": 538,
+          "end_step": 556,
+          "rows": 1500,
+          "drift_intensity": 0.35,
+          "drift": {
+            "window": "W02",
+            "max_psi": 0.03788401833777101,
+            "max_severity": "critical",
+            "is_drift": true,
+            "drifted_features": [
+              "amount",
+              "balance_diff_org",
+              "amount_ratio"
+            ]
+          },
+          "metrics": {
+            "accuracy": 0.989333,
+            "precision": 0.75,
+            "recall": 0.3,
+            "f1": 0.428571,
+            "auc_roc": 0.843649,
+            "pr_auc": 0.358794,
+            "threshold": 0.5,
+            "total": 1500,
+            "fraud_rate": 0.013333,
+            "true_positives": 6,
+            "false_positives": 2,
+            "true_negatives": 1478,
+            "false_negatives": 14
+          }
+        },
+        {
+          "index": 2,
+          "label": "W03",
+          "start_step": 556,
+          "end_step": 574,
+          "rows": 1500,
+          "drift_intensity": 0.35,
+          "drift": {
+            "window": "W03",
+            "max_psi": 0.04375486199388985,
+            "max_severity": "critical",
+            "is_drift": true,
+            "drifted_features": [
+              "amount",
+              "old_balance_org",
+              "new_balance_org",
+              "balance_diff_org",
+              "amount_ratio"
+            ]
+          },
+          "metrics": {
+            "accuracy": 0.99,
+            "precision": 0.75,
+            "recall": 0.176471,
+            "f1": 0.285714,
+            "auc_roc": 0.852406,
+            "pr_auc": 0.218923,
+            "threshold": 0.5,
+            "total": 1500,
+            "fraud_rate": 0.011333,
+            "true_positives": 3,
+            "false_positives": 1,
+            "true_negatives": 1482,
+            "false_negatives": 14
+          }
+        },
+        {
+          "index": 3,
+          "label": "W04",
+          "start_step": 574,
+          "end_step": 593,
+          "rows": 1500,
+          "drift_intensity": 0.35,
+          "drift": {
+            "window": "W04",
+            "max_psi": 0.040806501214577955,
+            "max_severity": "critical",
+            "is_drift": true,
+            "drifted_features": [
+              "amount",
+              "old_balance_org",
+              "new_balance_org",
+              "balance_diff_org",
+              "amount_ratio"
+            ]
+          },
+          "metrics": {
+            "accuracy": 0.987333,
+            "precision": 0.666667,
+            "recall": 0.190476,
+            "f1": 0.296296,
+            "auc_roc": 0.768602,
+            "pr_auc": 0.231062,
+            "threshold": 0.5,
+            "total": 1500,
+            "fraud_rate": 0.014,
+            "true_positives": 4,
+            "false_positives": 2,
+            "true_negatives": 1477,
+            "false_negatives": 17
+          }
+        },
+        {
+          "index": 4,
+          "label": "W05",
+          "start_step": 593,
+          "end_step": 612,
+          "rows": 1500,
+          "drift_intensity": 0.35,
+          "drift": {
+            "window": "W05",
+            "max_psi": 0.04058353066984974,
+            "max_severity": "critical",
+            "is_drift": true,
+            "drifted_features": [
+              "amount",
+              "old_balance_org",
+              "new_balance_org",
+              "balance_diff_org",
+              "amount_ratio"
+            ]
+          },
+          "metrics": {
+            "accuracy": 0.992667,
+            "precision": 0.8,
+            "recall": 0.285714,
+            "f1": 0.421053,
+            "auc_roc": 0.865218,
+            "pr_auc": 0.334967,
+            "threshold": 0.5,
+            "total": 1500,
+            "fraud_rate": 0.009333,
+            "true_positives": 4,
+            "false_positives": 1,
+            "true_negatives": 1485,
+            "false_negatives": 10
+          }
+        },
+        {
+          "index": 5,
+          "label": "W06",
+          "start_step": 612,
+          "end_step": 632,
+          "rows": 1500,
+          "drift_intensity": 0.35,
+          "drift": {
+            "window": "W06",
+            "max_psi": 0.026534757654313453,
+            "max_severity": "critical",
+            "is_drift": true,
+            "drifted_features": [
+              "amount",
+              "old_balance_org",
+              "balance_diff_org",
+              "amount_ratio"
+            ]
+          },
+          "metrics": {
+            "accuracy": 0.993333,
+            "precision": 0.75,
+            "recall": 0.428571,
+            "f1": 0.545455,
+            "auc_roc": 0.908816,
+            "pr_auc": 0.489742,
+            "threshold": 0.5,
+            "total": 1500,
+            "fraud_rate": 0.009333,
+            "true_positives": 6,
+            "false_positives": 2,
+            "true_negatives": 1484,
+            "false_negatives": 8
+          }
+        },
+        {
+          "index": 6,
+          "label": "W07",
+          "start_step": 632,
+          "end_step": 650,
+          "rows": 1500,
+          "drift_intensity": 0.35,
+          "drift": {
+            "window": "W07",
+            "max_psi": 0.03349861208942026,
+            "max_severity": "critical",
+            "is_drift": true,
+            "drifted_features": [
+              "amount",
+              "old_balance_org",
+              "new_balance_org",
+              "balance_diff_org",
+              "amount_ratio"
+            ]
+          },
+          "metrics": {
+            "accuracy": 0.993333,
+            "precision": 0.769231,
+            "recall": 0.588235,
+            "f1": 0.666667,
+            "auc_roc": 0.880092,
+            "pr_auc": 0.62333,
+            "threshold": 0.5,
+            "total": 1500,
+            "fraud_rate": 0.011333,
+            "true_positives": 10,
+            "false_positives": 3,
+            "true_negatives": 1480,
+            "false_negatives": 7
+          }
+        },
+        {
+          "index": 7,
+          "label": "W08",
+          "start_step": 650,
+          "end_step": 669,
+          "rows": 1500,
+          "drift_intensity": 0.35,
+          "drift": {
+            "window": "W08",
+            "max_psi": 0.035920549137890855,
+            "max_severity": "critical",
+            "is_drift": true,
+            "drifted_features": [
+              "amount",
+              "balance_diff_org",
+              "amount_ratio"
+            ]
+          },
+          "metrics": {
+            "accuracy": 0.993333,
+            "precision": 1.0,
+            "recall": 0.375,
+            "f1": 0.545455,
+            "auc_roc": 0.887719,
+            "pr_auc": 0.42743,
+            "threshold": 0.5,
+            "total": 1500,
+            "fraud_rate": 0.010667,
+            "true_positives": 6,
+            "false_positives": 0,
+            "true_negatives": 1484,
+            "false_negatives": 10
+          }
+        },
+        {
+          "index": 8,
+          "label": "W09",
+          "start_step": 669,
+          "end_step": 688,
+          "rows": 1500,
+          "drift_intensity": 0.35,
+          "drift": {
+            "window": "W09",
+            "max_psi": 0.03699450091331088,
+            "max_severity": "critical",
+            "is_drift": true,
+            "drifted_features": [
+              "amount",
+              "old_balance_org",
+              "balance_diff_org",
+              "amount_ratio"
+            ]
+          },
+          "metrics": {
+            "accuracy": 0.992667,
+            "precision": 1.0,
+            "recall": 0.45,
+            "f1": 0.62069,
+            "auc_roc": 0.866284,
+            "pr_auc": 0.494095,
+            "threshold": 0.5,
+            "total": 1500,
+            "fraud_rate": 0.013333,
+            "true_positives": 9,
+            "false_positives": 0,
+            "true_negatives": 1480,
+            "false_negatives": 11
+          }
+        },
+        {
+          "index": 9,
+          "label": "W10",
+          "start_step": 688,
+          "end_step": 707,
+          "rows": 1500,
+          "drift_intensity": 0.35,
+          "drift": {
+            "window": "W10",
+            "max_psi": 0.0568714613872564,
+            "max_severity": "critical",
+            "is_drift": true,
+            "drifted_features": [
+              "amount",
+              "old_balance_org",
+              "balance_diff_org",
+              "amount_ratio"
+            ]
+          },
+          "metrics": {
+            "accuracy": 0.99,
+            "precision": 0.75,
+            "recall": 0.176471,
+            "f1": 0.285714,
+            "auc_roc": 0.83055,
+            "pr_auc": 0.225864,
+            "threshold": 0.5,
+            "total": 1500,
+            "fraud_rate": 0.011333,
+            "true_positives": 3,
+            "false_positives": 1,
+            "true_negatives": 1482,
+            "false_negatives": 14
+          }
+        },
+        {
+          "index": 10,
+          "label": "W11",
+          "start_step": 707,
+          "end_step": 726,
+          "rows": 1500,
+          "drift_intensity": 0.35,
+          "drift": {
+            "window": "W11",
+            "max_psi": 0.03709051181805997,
+            "max_severity": "critical",
+            "is_drift": true,
+            "drifted_features": [
+              "amount",
+              "old_balance_org",
+              "new_balance_org",
+              "balance_diff_org",
+              "amount_ratio"
+            ]
+          },
+          "metrics": {
+            "accuracy": 0.993333,
+            "precision": 0.857143,
+            "recall": 0.4,
+            "f1": 0.545455,
+            "auc_roc": 0.848036,
+            "pr_auc": 0.437217,
+            "threshold": 0.5,
+            "total": 1500,
+            "fraud_rate": 0.01,
+            "true_positives": 6,
+            "false_positives": 1,
+            "true_negatives": 1484,
+            "false_negatives": 9
+          }
+        },
+        {
+          "index": 11,
+          "label": "W12",
+          "start_step": 726,
+          "end_step": 744,
+          "rows": 1500,
+          "drift_intensity": 0.35,
+          "drift": {
+            "window": "W12",
+            "max_psi": 0.03645788866026135,
+            "max_severity": "critical",
+            "is_drift": true,
+            "drifted_features": [
+              "amount",
+              "balance_diff_org",
+              "amount_ratio"
+            ]
+          },
+          "metrics": {
+            "accuracy": 0.987333,
+            "precision": 0.0,
+            "recall": 0.0,
+            "f1": 0.0,
+            "auc_roc": 0.787853,
+            "pr_auc": 0.035037,
+            "threshold": 0.5,
+            "total": 1500,
+            "fraud_rate": 0.009333,
+            "true_positives": 0,
+            "false_positives": 5,
+            "true_negatives": 1481,
+            "false_negatives": 14
+          }
+        }
+      ],
+      "degradation_vs_none": {
+        "accuracy": {
+          "absolute": -0.007723,
+          "relative": -0.007733
+        },
+        "precision": {
+          "absolute": -0.151765,
+          "relative": -0.173946
+        },
+        "recall": {
+          "absolute": -0.562733,
+          "relative": -0.649213
+        },
+        "f1": {
+          "absolute": -0.4459,
+          "relative": -0.516375
+        },
+        "auc_roc": {
+          "absolute": -0.145815,
+          "relative": -0.146061
+        },
+        "pr_auc": {
+          "absolute": -0.570899,
+          "relative": -0.61982
+        }
+      }
+    },
+    "moderate": {
+      "level": "moderate",
+      "label": "Drift moderado",
+      "description": "Valores ~60% maiores, mix de tipos alterado e 5% de nova tipologia.",
+      "intensity": 0.7,
+      "aggregate": {
+        "accuracy": 0.982889,
+        "precision": 0.654731,
+        "recall": 0.178415,
+        "f1": 0.274526,
+        "auc_roc": 0.80532,
+        "pr_auc": 0.238584,
+        "f1_std": 0.124519,
+        "windows": 12,
+        "rows": 18000,
+        "fraud_rate": 0.018778
+      },
+      "drift": {
+        "detected_windows": 12,
+        "windows": 12,
+        "max_psi": 0.11690188727819749,
+        "mean_psi": 0.087165
+      },
+      "windows": [
+        {
+          "index": 0,
+          "label": "W01",
+          "start_step": 519,
+          "end_step": 538,
+          "rows": 1500,
+          "drift_intensity": 0.7,
+          "drift": {
+            "window": "W01",
+            "max_psi": 0.07926113801228918,
+            "max_severity": "critical",
+            "is_drift": true,
+            "drifted_features": [
+              "amount",
+              "old_balance_org",
+              "new_balance_org",
+              "balance_diff_org",
+              "amount_ratio"
+            ]
+          },
+          "metrics": {
+            "accuracy": 0.981333,
+            "precision": 0.666667,
+            "recall": 0.133333,
+            "f1": 0.222222,
+            "auc_roc": 0.813583,
+            "pr_auc": 0.202108,
+            "threshold": 0.5,
+            "total": 1500,
+            "fraud_rate": 0.02,
+            "true_positives": 4,
+            "false_positives": 2,
+            "true_negatives": 1468,
+            "false_negatives": 26
+          }
+        },
+        {
+          "index": 1,
+          "label": "W02",
+          "start_step": 538,
+          "end_step": 556,
+          "rows": 1500,
+          "drift_intensity": 0.7,
+          "drift": {
+            "window": "W02",
+            "max_psi": 0.07109037765434112,
+            "max_severity": "critical",
+            "is_drift": true,
+            "drifted_features": [
+              "amount",
+              "old_balance_org",
+              "new_balance_org",
+              "balance_diff_org",
+              "amount_ratio"
+            ]
+          },
+          "metrics": {
+            "accuracy": 0.988667,
+            "precision": 1.0,
+            "recall": 0.26087,
+            "f1": 0.413793,
+            "auc_roc": 0.853434,
+            "pr_auc": 0.336709,
+            "threshold": 0.5,
+            "total": 1500,
+            "fraud_rate": 0.015333,
+            "true_positives": 6,
+            "false_positives": 0,
+            "true_negatives": 1477,
+            "false_negatives": 17
+          }
+        },
+        {
+          "index": 2,
+          "label": "W03",
+          "start_step": 556,
+          "end_step": 574,
+          "rows": 1500,
+          "drift_intensity": 0.7,
+          "drift": {
+            "window": "W03",
+            "max_psi": 0.09656952397641654,
+            "max_severity": "critical",
+            "is_drift": true,
+            "drifted_features": [
+              "amount",
+              "old_balance_org",
+              "new_balance_org",
+              "balance_diff_org",
+              "amount_ratio"
+            ]
+          },
+          "metrics": {
+            "accuracy": 0.980667,
+            "precision": 0.75,
+            "recall": 0.096774,
+            "f1": 0.171429,
+            "auc_roc": 0.794363,
+            "pr_auc": 0.160136,
+            "threshold": 0.5,
+            "total": 1500,
+            "fraud_rate": 0.020667,
+            "true_positives": 3,
+            "false_positives": 1,
+            "true_negatives": 1468,
+            "false_negatives": 28
+          }
+        },
+        {
+          "index": 3,
+          "label": "W04",
+          "start_step": 574,
+          "end_step": 593,
+          "rows": 1500,
+          "drift_intensity": 0.7,
+          "drift": {
+            "window": "W04",
+            "max_psi": 0.09318961888627808,
+            "max_severity": "critical",
+            "is_drift": true,
+            "drifted_features": [
+              "amount",
+              "old_balance_org",
+              "new_balance_org",
+              "balance_diff_org",
+              "amount_ratio"
+            ]
+          },
+          "metrics": {
+            "accuracy": 0.981333,
+            "precision": 0.5,
+            "recall": 0.142857,
+            "f1": 0.222222,
+            "auc_roc": 0.769349,
+            "pr_auc": 0.185341,
+            "threshold": 0.5,
+            "total": 1500,
+            "fraud_rate": 0.018667,
+            "true_positives": 4,
+            "false_positives": 4,
+            "true_negatives": 1468,
+            "false_negatives": 24
+          }
+        },
+        {
+          "index": 4,
+          "label": "W05",
+          "start_step": 593,
+          "end_step": 612,
+          "rows": 1500,
+          "drift_intensity": 0.7,
+          "drift": {
+            "window": "W05",
+            "max_psi": 0.08438928188845901,
+            "max_severity": "critical",
+            "is_drift": true,
+            "drifted_features": [
+              "amount",
+              "old_balance_org",
+              "new_balance_org",
+              "balance_diff_org",
+              "amount_ratio"
+            ]
+          },
+          "metrics": {
+            "accuracy": 0.986,
+            "precision": 0.571429,
+            "recall": 0.181818,
+            "f1": 0.275862,
+            "auc_roc": 0.799852,
+            "pr_auc": 0.22371,
+            "threshold": 0.5,
+            "total": 1500,
+            "fraud_rate": 0.014667,
+            "true_positives": 4,
+            "false_positives": 3,
+            "true_negatives": 1475,
+            "false_negatives": 18
+          }
+        },
+        {
+          "index": 5,
+          "label": "W06",
+          "start_step": 612,
+          "end_step": 632,
+          "rows": 1500,
+          "drift_intensity": 0.7,
+          "drift": {
+            "window": "W06",
+            "max_psi": 0.06832286728869694,
+            "max_severity": "critical",
+            "is_drift": true,
+            "drifted_features": [
+              "amount",
+              "old_balance_org",
+              "new_balance_org",
+              "balance_diff_org",
+              "amount_ratio"
+            ]
+          },
+          "metrics": {
+            "accuracy": 0.980667,
+            "precision": 0.461538,
+            "recall": 0.214286,
+            "f1": 0.292683,
+            "auc_roc": 0.83766,
+            "pr_auc": 0.292868,
+            "threshold": 0.5,
+            "total": 1500,
+            "fraud_rate": 0.018667,
+            "true_positives": 6,
+            "false_positives": 7,
+            "true_negatives": 1465,
+            "false_negatives": 22
+          }
+        },
+        {
+          "index": 6,
+          "label": "W07",
+          "start_step": 632,
+          "end_step": 650,
+          "rows": 1500,
+          "drift_intensity": 0.7,
+          "drift": {
+            "window": "W07",
+            "max_psi": 0.08910913224180494,
+            "max_severity": "critical",
+            "is_drift": true,
+            "drifted_features": [
+              "amount",
+              "old_balance_org",
+              "new_balance_org",
+              "balance_diff_org",
+              "amount_ratio"
+            ]
+          },
+          "metrics": {
+            "accuracy": 0.986667,
+            "precision": 0.833333,
+            "recall": 0.357143,
+            "f1": 0.5,
+            "auc_roc": 0.856585,
+            "pr_auc": 0.441021,
+            "threshold": 0.5,
+            "total": 1500,
+            "fraud_rate": 0.018667,
+            "true_positives": 10,
+            "false_positives": 2,
+            "true_negatives": 1470,
+            "false_negatives": 18
+          }
+        },
+        {
+          "index": 7,
+          "label": "W08",
+          "start_step": 650,
+          "end_step": 669,
+          "rows": 1500,
+          "drift_intensity": 0.7,
+          "drift": {
+            "window": "W08",
+            "max_psi": 0.08500838481702513,
+            "max_severity": "critical",
+            "is_drift": true,
+            "drifted_features": [
+              "amount",
+              "old_balance_org",
+              "new_balance_org",
+              "balance_diff_org",
+              "amount_ratio"
+            ]
+          },
+          "metrics": {
+            "accuracy": 0.984,
+            "precision": 0.857143,
+            "recall": 0.206897,
+            "f1": 0.333333,
+            "auc_roc": 0.778499,
+            "pr_auc": 0.259274,
+            "threshold": 0.5,
+            "total": 1500,
+            "fraud_rate": 0.019333,
+            "true_positives": 6,
+            "false_positives": 1,
+            "true_negatives": 1470,
+            "false_negatives": 23
+          }
+        },
+        {
+          "index": 8,
+          "label": "W09",
+          "start_step": 669,
+          "end_step": 688,
+          "rows": 1500,
+          "drift_intensity": 0.7,
+          "drift": {
+            "window": "W09",
+            "max_psi": 0.0850756342588025,
+            "max_severity": "critical",
+            "is_drift": true,
+            "drifted_features": [
+              "amount",
+              "old_balance_org",
+              "new_balance_org",
+              "balance_diff_org",
+              "amount_ratio"
+            ]
+          },
+          "metrics": {
+            "accuracy": 0.982667,
+            "precision": 0.8,
+            "recall": 0.25,
+            "f1": 0.380952,
+            "auc_roc": 0.796683,
+            "pr_auc": 0.304803,
+            "threshold": 0.5,
+            "total": 1500,
+            "fraud_rate": 0.021333,
+            "true_positives": 8,
+            "false_positives": 2,
+            "true_negatives": 1466,
+            "false_negatives": 24
+          }
+        },
+        {
+          "index": 9,
+          "label": "W10",
+          "start_step": 688,
+          "end_step": 707,
+          "rows": 1500,
+          "drift_intensity": 0.7,
+          "drift": {
+            "window": "W10",
+            "max_psi": 0.11690188727819749,
+            "max_severity": "critical",
+            "is_drift": true,
+            "drifted_features": [
+              "amount",
+              "old_balance_org",
+              "new_balance_org",
+              "balance_diff_org",
+              "amount_ratio"
+            ]
+          },
+          "metrics": {
+            "accuracy": 0.982,
+            "precision": 0.75,
+            "recall": 0.103448,
+            "f1": 0.181818,
+            "auc_roc": 0.786094,
+            "pr_auc": 0.165074,
+            "threshold": 0.5,
+            "total": 1500,
+            "fraud_rate": 0.019333,
+            "true_positives": 3,
+            "false_positives": 1,
+            "true_negatives": 1470,
+            "false_negatives": 26
+          }
+        },
+        {
+          "index": 10,
+          "label": "W11",
+          "start_step": 707,
+          "end_step": 726,
+          "rows": 1500,
+          "drift_intensity": 0.7,
+          "drift": {
+            "window": "W11",
+            "max_psi": 0.0897987072954348,
+            "max_severity": "critical",
+            "is_drift": true,
+            "drifted_features": [
+              "amount",
+              "old_balance_org",
+              "new_balance_org",
+              "balance_diff_org",
+              "amount_ratio"
+            ]
+          },
+          "metrics": {
+            "accuracy": 0.981333,
+            "precision": 0.666667,
+            "recall": 0.193548,
+            "f1": 0.3,
+            "auc_roc": 0.808867,
+            "pr_auc": 0.246259,
+            "threshold": 0.5,
+            "total": 1500,
+            "fraud_rate": 0.020667,
+            "true_positives": 6,
+            "false_positives": 3,
+            "true_negatives": 1466,
+            "false_negatives": 25
+          }
+        },
+        {
+          "index": 11,
+          "label": "W12",
+          "start_step": 726,
+          "end_step": 744,
+          "rows": 1500,
+          "drift_intensity": 0.7,
+          "drift": {
+            "window": "W12",
+            "max_psi": 0.0872621483280458,
+            "max_severity": "critical",
+            "is_drift": true,
+            "drifted_features": [
+              "amount",
+              "old_balance_org",
+              "new_balance_org",
+              "balance_diff_org",
+              "amount_ratio"
+            ]
+          },
+          "metrics": {
+            "accuracy": 0.979333,
+            "precision": 0.0,
+            "recall": 0.0,
+            "f1": 0.0,
+            "auc_roc": 0.768877,
+            "pr_auc": 0.045707,
+            "threshold": 0.5,
+            "total": 1500,
+            "fraud_rate": 0.018,
+            "true_positives": 0,
+            "false_positives": 4,
+            "true_negatives": 1469,
+            "false_negatives": 27
+          }
+        }
+      ],
+      "degradation_vs_none": {
+        "accuracy": {
+          "absolute": -0.015778,
+          "relative": -0.015799
+        },
+        "precision": {
+          "absolute": -0.21775,
+          "relative": -0.249576
+        },
+        "recall": {
+          "absolute": -0.688378,
+          "relative": -0.794167
+        },
+        "f1": {
+          "absolute": -0.588994,
+          "relative": -0.682085
+        },
+        "auc_roc": {
+          "absolute": -0.192997,
+          "relative": -0.193322
+        },
+        "pr_auc": {
+          "absolute": -0.682488,
+          "relative": -0.740971
+        }
+      }
+    },
+    "high": {
+      "level": "high",
+      "label": "Drift forte",
+      "description": "Valores ~2x, mix de tipos alterado e 10% de nova tipologia.",
+      "intensity": 1.2,
+      "aggregate": {
+        "accuracy": 0.969111,
+        "precision": 0.699603,
+        "recall": 0.099146,
+        "f1": 0.171546,
+        "auc_roc": 0.768651,
+        "pr_auc": 0.1855,
+        "f1_std": 0.084799,
+        "windows": 12,
+        "rows": 18000,
+        "fraud_rate": 0.032778
+      },
+      "drift": {
+        "detected_windows": 12,
+        "windows": 12,
+        "max_psi": 0.20632986368083636,
+        "mean_psi": 0.183548
+      },
+      "windows": [
+        {
+          "index": 0,
+          "label": "W01",
+          "start_step": 519,
+          "end_step": 538,
+          "rows": 1500,
+          "drift_intensity": 1.2,
+          "drift": {
+            "window": "W01",
+            "max_psi": 0.1684761226234237,
+            "max_severity": "critical",
+            "is_drift": true,
+            "drifted_features": [
+              "amount",
+              "old_balance_org",
+              "new_balance_org",
+              "balance_diff_org",
+              "amount_ratio"
+            ]
+          },
+          "metrics": {
+            "accuracy": 0.970667,
+            "precision": 0.8,
+            "recall": 0.085106,
+            "f1": 0.153846,
+            "auc_roc": 0.786465,
+            "pr_auc": 0.174587,
+            "threshold": 0.5,
+            "total": 1500,
+            "fraud_rate": 0.031333,
+            "true_positives": 4,
+            "false_positives": 1,
+            "true_negatives": 1452,
+            "false_negatives": 43
+          }
+        },
+        {
+          "index": 1,
+          "label": "W02",
+          "start_step": 538,
+          "end_step": 556,
+          "rows": 1500,
+          "drift_intensity": 1.2,
+          "drift": {
+            "window": "W02",
+            "max_psi": 0.1531854669678639,
+            "max_severity": "critical",
+            "is_drift": true,
+            "drifted_features": [
+              "amount",
+              "old_balance_org",
+              "new_balance_org",
+              "balance_diff_org",
+              "amount_ratio"
+            ]
+          },
+          "metrics": {
+            "accuracy": 0.974667,
+            "precision": 0.75,
+            "recall": 0.142857,
+            "f1": 0.24,
+            "auc_roc": 0.804625,
+            "pr_auc": 0.239522,
+            "threshold": 0.5,
+            "total": 1500,
+            "fraud_rate": 0.028,
+            "true_positives": 6,
+            "false_positives": 2,
+            "true_negatives": 1456,
+            "false_negatives": 36
+          }
+        },
+        {
+          "index": 2,
+          "label": "W03",
+          "start_step": 556,
+          "end_step": 574,
+          "rows": 1500,
+          "drift_intensity": 1.2,
+          "drift": {
+            "window": "W03",
+            "max_psi": 0.1718922842059529,
+            "max_severity": "critical",
+            "is_drift": true,
+            "drifted_features": [
+              "amount",
+              "old_balance_org",
+              "new_balance_org",
+              "balance_diff_org",
+              "amount_ratio"
+            ]
+          },
+          "metrics": {
+            "accuracy": 0.964667,
+            "precision": 0.666667,
+            "recall": 0.037037,
+            "f1": 0.070175,
+            "auc_roc": 0.764939,
+            "pr_auc": 0.141407,
+            "threshold": 0.5,
+            "total": 1500,
+            "fraud_rate": 0.036,
+            "true_positives": 2,
+            "false_positives": 1,
+            "true_negatives": 1445,
+            "false_negatives": 52
+          }
+        },
+        {
+          "index": 3,
+          "label": "W04",
+          "start_step": 574,
+          "end_step": 593,
+          "rows": 1500,
+          "drift_intensity": 1.2,
+          "drift": {
+            "window": "W04",
+            "max_psi": 0.19022366853725964,
+            "max_severity": "critical",
+            "is_drift": true,
+            "drifted_features": [
+              "amount",
+              "old_balance_org",
+              "new_balance_org",
+              "balance_diff_org",
+              "amount_ratio"
+            ]
+          },
+          "metrics": {
+            "accuracy": 0.968667,
+            "precision": 0.666667,
+            "recall": 0.081633,
+            "f1": 0.145455,
+            "auc_roc": 0.788337,
+            "pr_auc": 0.166124,
+            "threshold": 0.5,
+            "total": 1500,
+            "fraud_rate": 0.032667,
+            "true_positives": 4,
+            "false_positives": 2,
+            "true_negatives": 1449,
+            "false_negatives": 45
+          }
+        },
+        {
+          "index": 4,
+          "label": "W05",
+          "start_step": 593,
+          "end_step": 612,
+          "rows": 1500,
+          "drift_intensity": 1.2,
+          "drift": {
+            "window": "W05",
+            "max_psi": 0.18982822653913234,
+            "max_severity": "critical",
+            "is_drift": true,
+            "drifted_features": [
+              "amount",
+              "old_balance_org",
+              "new_balance_org",
+              "balance_diff_org",
+              "amount_ratio"
+            ]
+          },
+          "metrics": {
+            "accuracy": 0.975333,
+            "precision": 0.571429,
+            "recall": 0.105263,
+            "f1": 0.177778,
+            "auc_roc": 0.803838,
+            "pr_auc": 0.18367,
+            "threshold": 0.5,
+            "total": 1500,
+            "fraud_rate": 0.025333,
+            "true_positives": 4,
+            "false_positives": 3,
+            "true_negatives": 1459,
+            "false_negatives": 34
+          }
+        },
+        {
+          "index": 5,
+          "label": "W06",
+          "start_step": 612,
+          "end_step": 632,
+          "rows": 1500,
+          "drift_intensity": 1.2,
+          "drift": {
+            "window": "W06",
+            "max_psi": 0.16760330675378304,
+            "max_severity": "critical",
+            "is_drift": true,
+            "drifted_features": [
+              "amount",
+              "old_balance_org",
+              "new_balance_org",
+              "balance_diff_org",
+              "amount_ratio"
+            ]
+          },
+          "metrics": {
+            "accuracy": 0.973333,
+            "precision": 0.857143,
+            "recall": 0.133333,
+            "f1": 0.230769,
+            "auc_roc": 0.787384,
+            "pr_auc": 0.216394,
+            "threshold": 0.5,
+            "total": 1500,
+            "fraud_rate": 0.03,
+            "true_positives": 6,
+            "false_positives": 1,
+            "true_negatives": 1454,
+            "false_negatives": 39
+          }
+        },
+        {
+          "index": 6,
+          "label": "W07",
+          "start_step": 632,
+          "end_step": 650,
+          "rows": 1500,
+          "drift_intensity": 1.2,
+          "drift": {
+            "window": "W07",
+            "max_psi": 0.19883385934584158,
+            "max_severity": "critical",
+            "is_drift": true,
+            "drifted_features": [
+              "amount",
+              "old_balance_org",
+              "new_balance_org",
+              "balance_diff_org",
+              "amount_ratio"
+            ]
+          },
+          "metrics": {
+            "accuracy": 0.975333,
+            "precision": 1.0,
+            "recall": 0.212766,
+            "f1": 0.350877,
+            "auc_roc": 0.788113,
+            "pr_auc": 0.302785,
+            "threshold": 0.5,
+            "total": 1500,
+            "fraud_rate": 0.031333,
+            "true_positives": 10,
+            "false_positives": 0,
+            "true_negatives": 1453,
+            "false_negatives": 37
+          }
+        },
+        {
+          "index": 7,
+          "label": "W08",
+          "start_step": 650,
+          "end_step": 669,
+          "rows": 1500,
+          "drift_intensity": 1.2,
+          "drift": {
+            "window": "W08",
+            "max_psi": 0.199813437239736,
+            "max_severity": "critical",
+            "is_drift": true,
+            "drifted_features": [
+              "amount",
+              "old_balance_org",
+              "new_balance_org",
+              "balance_diff_org",
+              "amount_ratio"
+            ]
+          },
+          "metrics": {
+            "accuracy": 0.968,
+            "precision": 1.0,
+            "recall": 0.111111,
+            "f1": 0.2,
+            "auc_roc": 0.720007,
+            "pr_auc": 0.18938,
+            "threshold": 0.5,
+            "total": 1500,
+            "fraud_rate": 0.036,
+            "true_positives": 6,
+            "false_positives": 0,
+            "true_negatives": 1446,
+            "false_negatives": 48
+          }
+        },
+        {
+          "index": 8,
+          "label": "W09",
+          "start_step": 669,
+          "end_step": 688,
+          "rows": 1500,
+          "drift_intensity": 1.2,
+          "drift": {
+            "window": "W09",
+            "max_psi": 0.18675133686675802,
+            "max_severity": "critical",
+            "is_drift": true,
+            "drifted_features": [
+              "amount",
+              "old_balance_org",
+              "new_balance_org",
+              "balance_diff_org",
+              "amount_ratio"
+            ]
+          },
+          "metrics": {
+            "accuracy": 0.967333,
+            "precision": 0.666667,
+            "recall": 0.115385,
+            "f1": 0.196721,
+            "auc_roc": 0.729149,
+            "pr_auc": 0.184346,
+            "threshold": 0.5,
+            "total": 1500,
+            "fraud_rate": 0.034667,
+            "true_positives": 6,
+            "false_positives": 3,
+            "true_negatives": 1445,
+            "false_negatives": 46
+          }
+        },
+        {
+          "index": 9,
+          "label": "W10",
+          "start_step": 688,
+          "end_step": 707,
+          "rows": 1500,
+          "drift_intensity": 1.2,
+          "drift": {
+            "window": "W10",
+            "max_psi": 0.20632986368083636,
+            "max_severity": "critical",
+            "is_drift": true,
+            "drifted_features": [
+              "amount",
+              "old_balance_org",
+              "new_balance_org",
+              "balance_diff_org",
+              "amount_ratio"
+            ]
+          },
+          "metrics": {
+            "accuracy": 0.968,
+            "precision": 0.75,
+            "recall": 0.06,
+            "f1": 0.111111,
+            "auc_roc": 0.740207,
+            "pr_auc": 0.133055,
+            "threshold": 0.5,
+            "total": 1500,
+            "fraud_rate": 0.033333,
+            "true_positives": 3,
+            "false_positives": 1,
+            "true_negatives": 1449,
+            "false_negatives": 47
+          }
+        },
+        {
+          "index": 10,
+          "label": "W11",
+          "start_step": 707,
+          "end_step": 726,
+          "rows": 1500,
+          "drift_intensity": 1.2,
+          "drift": {
+            "window": "W11",
+            "max_psi": 0.1995762128035895,
+            "max_severity": "critical",
+            "is_drift": true,
+            "drifted_features": [
+              "amount",
+              "old_balance_org",
+              "new_balance_org",
+              "balance_diff_org",
+              "amount_ratio"
+            ]
+          },
+          "metrics": {
+            "accuracy": 0.964,
+            "precision": 0.666667,
+            "recall": 0.105263,
+            "f1": 0.181818,
+            "auc_roc": 0.778033,
+            "pr_auc": 0.21745,
+            "threshold": 0.5,
+            "total": 1500,
+            "fraud_rate": 0.038,
+            "true_positives": 6,
+            "false_positives": 3,
+            "true_negatives": 1440,
+            "false_negatives": 51
+          }
+        },
+        {
+          "index": 11,
+          "label": "W12",
+          "start_step": 726,
+          "end_step": 744,
+          "rows": 1500,
+          "drift_intensity": 1.2,
+          "drift": {
+            "window": "W12",
+            "max_psi": 0.1700658989211959,
+            "max_severity": "critical",
+            "is_drift": true,
+            "drifted_features": [
+              "amount",
+              "old_balance_org",
+              "new_balance_org",
+              "balance_diff_org",
+              "amount_ratio"
+            ]
+          },
+          "metrics": {
+            "accuracy": 0.959333,
+            "precision": 0.0,
+            "recall": 0.0,
+            "f1": 0.0,
+            "auc_roc": 0.732721,
+            "pr_auc": 0.077284,
+            "threshold": 0.5,
+            "total": 1500,
+            "fraud_rate": 0.036667,
+            "true_positives": 0,
+            "false_positives": 6,
+            "true_negatives": 1439,
+            "false_negatives": 55
+          }
+        }
+      ],
+      "degradation_vs_none": {
+        "accuracy": {
+          "absolute": -0.029556,
+          "relative": -0.029595
+        },
+        "precision": {
+          "absolute": -0.172878,
+          "relative": -0.198145
+        },
+        "recall": {
+          "absolute": -0.767647,
+          "relative": -0.885617
+        },
+        "f1": {
+          "absolute": -0.691974,
+          "relative": -0.801341
+        },
+        "auc_roc": {
+          "absolute": -0.229666,
+          "relative": -0.230053
+        },
+        "pr_auc": {
+          "absolute": -0.735572,
+          "relative": -0.798604
+        }
+      }
+    }
+  },
+  "summary": [
+    {
+      "scenario": "none",
+      "intensity": 0.0,
+      "windows": 12,
+      "rows": 18000,
+      "fraud_rate": 0.005056,
+      "precision": 0.872481,
+      "recall": 0.866793,
+      "f1": 0.86352,
+      "auc_roc": 0.998317,
+      "pr_auc": 0.921072,
+      "f1_std": 0.097023,
+      "max_psi": 0.017220331490529976,
+      "detected_windows": 1
+    },
+    {
+      "scenario": "low",
+      "intensity": 0.35,
+      "windows": 12,
+      "rows": 18000,
+      "fraud_rate": 0.011278,
+      "precision": 0.720716,
+      "recall": 0.30406,
+      "f1": 0.41762,
+      "auc_roc": 0.852502,
+      "pr_auc": 0.350173,
+      "f1_std": 0.177618,
+      "max_psi": 0.0568714613872564,
+      "detected_windows": 12
+    },
+    {
+      "scenario": "moderate",
+      "intensity": 0.7,
+      "windows": 12,
+      "rows": 18000,
+      "fraud_rate": 0.018778,
+      "precision": 0.654731,
+      "recall": 0.178415,
+      "f1": 0.274526,
+      "auc_roc": 0.80532,
+      "pr_auc": 0.238584,
+      "f1_std": 0.124519,
+      "max_psi": 0.11690188727819749,
+      "detected_windows": 12
+    },
+    {
+      "scenario": "high",
+      "intensity": 1.2,
+      "windows": 12,
+      "rows": 18000,
+      "fraud_rate": 0.032778,
+      "precision": 0.699603,
+      "recall": 0.099146,
+      "f1": 0.171546,
+      "auc_roc": 0.768651,
+      "pr_auc": 0.1855,
+      "f1_std": 0.084799,
+      "max_psi": 0.20632986368083636,
+      "detected_windows": 12
+    }
+  ]
+}

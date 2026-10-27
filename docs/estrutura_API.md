@@ -124,8 +124,15 @@ Resposta da detecção sem banco:
 
 | Método | Endpoint | Código | Descrição |
 | ------ | -------- | ------ | --------- |
-| POST | `/api/v1/retrain/` | 202 | `{ experiment_id, reason, triggered_by }`, executa em background |
+| POST | `/api/v1/retrain/` | 202 | `{ experiment_id, reason, triggered_by, rows? }`, executa em background |
 | GET | `/api/v1/retrain/history/{experiment_id}` | 200 | Alertas `retrain_triggered` / `retrain_completed` |
+| GET | `/api/v1/retrain/versions/{experiment_id}` | 200 | Versões de modelo e métricas de treino |
+
+O retreinamento usa `ml.retrain.ModelRetrainer`: coleta as predições rotuladas do
+experimento (ou o PaySim com o nível de drift do experimento como fallback), treina uma nova
+versão (`v1.2.0-xgb`, `v1.3.0-xgb`, …), recalibra o limiar na validação temporal, grava
+`model_versions`, `performance` e um alerta `retrain_completed`, e promove o novo artefato
+no estado da API. Falhas geram um alerta `retrain_completed` com severidade `critical`.
 
 ### Métricas e modelos
 
