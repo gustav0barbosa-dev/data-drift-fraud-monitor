@@ -17,7 +17,6 @@ isolada e reutilizável pela Pessoa 1 (simuladores) e pela Pessoa 3 (API).
 """
 from __future__ import annotations
 
-from collections import Counter
 from typing import Any, Iterable, Mapping, Optional, Sequence
 
 import numpy as np
@@ -173,10 +172,6 @@ class DriftDetector:
             "drift_score": float(drift_score),
             "warnings": warnings,
         }
-
-    def detect_feature(self, reference: Any, current: Any, **kwargs: Any) -> dict[str, Any]:
-        """Alias explícito para :meth:`detect`."""
-        return self.detect(reference, current, **kwargs)
 
     def detect_frame(
         self,
@@ -449,8 +444,3 @@ def _safe_size(values: Any) -> int:
         return int(np.asarray(values).size)
     except Exception:  # pragma: no cover - defensivo
         return 0
-
-
-def summarize_counts(values: Any) -> dict[str, int]:
-    """Retorna a contagem de valores (útil em relatórios categóricos)."""
-    return dict(Counter(np.asarray(values).ravel().tolist()))

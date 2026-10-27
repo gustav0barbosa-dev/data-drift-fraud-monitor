@@ -66,11 +66,3 @@ def create_all_tables():
     except Exception as e:
         logger.error(f"❌ Erro ao criar tabelas: {e}")
         raise
-
-
-def drop_all_tables():
-    """Remove todas as tabelas (uso apenas em desenvolvimento)."""
-    if not settings.DEBUG:
-        raise RuntimeError("drop_all_tables só pode ser usado em modo DEBUG")
-    Base.metadata.drop_all(bind=engine)
-    logger.warning("⚠️ Todas as tabelas foram removidas")
