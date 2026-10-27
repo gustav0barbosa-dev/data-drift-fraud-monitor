@@ -1,6 +1,5 @@
 import {
   Alert,
-  AlertSeverity,
   CategoricalDistribution,
   DriftLevel,
   DriftSummary,
@@ -19,7 +18,7 @@ import {
 } from '@/types';
 import { DRIFT_LEVEL_META, clamp, round } from '@/lib/utils';
 import { logNormal, mulberry32 } from '@/lib/random';
-import { classifyValue, methodValueLabel } from '@/lib/drift';
+import { classifyValue } from '@/lib/drift';
 
 const WEEK_MS = 7 * 24 * 60 * 60 * 1000;
 const TIMELINE_START = Date.UTC(2026, 6, 27, 0, 0, 0);
@@ -447,18 +446,6 @@ export function makeSimulatedWindow(
     ...pointFromMetrics(experiment, index, precision, recall, aucRoc, level, intensity),
     id: experiment.id * 1000 + index + 1,
   };
-}
-
-export function buildPerformanceHistory(
-  level: DriftLevel,
-  experimentId = 99,
-): SimulatorWindow[] {
-  const experiment: Experiment = {
-    ...DEMO_EXPERIMENTS[0],
-    id: experimentId,
-    drift_level: level,
-  };
-  return buildPerformanceTimeline(experiment);
 }
 
 // ------------------------------------------------------------
@@ -912,14 +899,4 @@ export const SANDBOX_STABLE = [
   49.7, 48.4, 57.1, 44.7, 53.2, 50.6, 54.9, 41.9, 58.3, 46.1, 52.7,
 ];
 
-export function sandboxLabel(method: MethodKey, value: number | null): string {
-  return methodValueLabel(method, value);
-}
 
-export function severityFromScore(score: number): Severity {
-  if (score >= 1) return 'critical';
-  if (score >= 0.5) return 'warning';
-  return 'none';
-}
-
-export const DEMO_ALERT_SEVERITY_ORDER: AlertSeverity[] = ['critical', 'warning', 'info'];

@@ -38,22 +38,6 @@ export function formatPct(value: number | null | undefined, digits = 1): string 
   return `${formatNumber(value * 100, digits)}%`;
 }
 
-export function formatSignedPct(value: number | null | undefined, digits = 1): string {
-  if (value === null || value === undefined || Number.isNaN(value)) return '—';
-  const prefix = value > 0 ? '+' : '';
-  return `${prefix}${formatNumber(value * 100, digits)}%`;
-}
-
-export function formatCurrency(value: number | null | undefined, digits = 0): string {
-  if (value === null || value === undefined || Number.isNaN(value)) return '—';
-  return new Intl.NumberFormat('pt-BR', {
-    style: 'currency',
-    currency: 'BRL',
-    maximumFractionDigits: digits,
-    minimumFractionDigits: digits,
-  }).format(value);
-}
-
 export function formatCompact(value: number | null | undefined): string {
   if (value === null || value === undefined || Number.isNaN(value)) return '—';
   return new Intl.NumberFormat('pt-BR', {
@@ -82,17 +66,6 @@ export function formatShortDate(value: string | null | undefined): string {
   return new Intl.DateTimeFormat('pt-BR', {
     day: '2-digit',
     month: 'short',
-  }).format(date);
-}
-
-export function formatTime(value: string | null | undefined): string {
-  if (!value) return '—';
-  const date = new Date(value);
-  if (Number.isNaN(date.getTime())) return '—';
-  return new Intl.DateTimeFormat('pt-BR', {
-    hour: '2-digit',
-    minute: '2-digit',
-    second: '2-digit',
   }).format(date);
 }
 

@@ -32,10 +32,6 @@ export function configureApi(options: { baseUrl?: string; timeout?: number }): v
   if (options.timeout && options.timeout > 0) timeoutMs = options.timeout;
 }
 
-export function getApiBaseUrl(): string {
-  return apiBaseUrl;
-}
-
 function createClient(): AxiosInstance {
   return axios.create({
     baseURL: apiBaseUrl,
@@ -74,10 +70,6 @@ export function apiErrorMessage(error: unknown): string {
   if (error instanceof ApiError) return error.message;
   if (error instanceof Error) return error.message;
   return 'Erro inesperado ao consultar a API.';
-}
-
-export function isConnectionError(error: unknown): boolean {
-  return axios.isAxiosError(error) && !error.response;
 }
 
 // ============================================================

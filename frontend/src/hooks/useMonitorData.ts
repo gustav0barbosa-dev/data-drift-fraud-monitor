@@ -27,7 +27,7 @@ import {
   buildModelInfo,
   buildPerformanceTimeline,
 } from '@/data/mock';
-import { classifyValue, methodValueLabel } from '@/lib/drift';
+import { classifyValue } from '@/lib/drift';
 import { round } from '@/lib/utils';
 import { api } from '@/services/api';
 
@@ -465,9 +465,4 @@ export function useMonitorData(
     ...data,
     retrainRecords: retrains[data.experiment.id] ?? [],
   };
-}
-
-export function methodDisplayValue(method: MethodKey, row: FeatureDriftRow): string {
-  const detail = row.methods[method];
-  return methodValueLabel(method, detail.value);
 }
