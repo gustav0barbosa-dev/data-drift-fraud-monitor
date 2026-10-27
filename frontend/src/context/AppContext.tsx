@@ -24,7 +24,6 @@ import { api, apiErrorMessage, configureApi, pingApi } from '@/services/api';
 import {
   DEMO_EXPERIMENTS,
   buildPerformanceTimeline,
-  getDemoExperiment,
 } from '@/data/mock';
 import { DEFAULT_THRESHOLDS, cloneThresholds } from '@/data/thresholds';
 
@@ -691,11 +690,4 @@ export function useApp(): AppContextValue {
     throw new Error('useApp deve ser usado dentro de AppProvider');
   }
   return context;
-}
-
-export function useDemoExperiment(id: number): Experiment {
-  return useMemo(() => {
-    const found = DEMO_EXPERIMENTS.find((experiment) => experiment.id === id);
-    return found ?? getDemoExperiment(id);
-  }, [id]);
 }

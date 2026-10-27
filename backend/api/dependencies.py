@@ -2,12 +2,12 @@
 Dependências compartilhadas da API.
 """
 from typing import Generator, Optional
-from fastapi import Depends, Query
+from fastapi import Query
 from sqlalchemy.orm import Session
 
 from db.database import SessionLocal
 from db.config import settings
-from ml.predict import FraudPredictor, MockFraudPredictor
+from ml.predict import MockFraudPredictor
 from api.exceptions import ModelNotLoadedException
 
 # Instância única do preditor heurístico (fallback sem artefato treinado).

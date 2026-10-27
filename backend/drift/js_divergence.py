@@ -29,32 +29,10 @@ import math
 import numpy as np
 from scipy.spatial.distance import jensenshannon
 
+from drift._utils import as_1d_numeric
+
 DEFAULT_BINS = 10
 DEFAULT_EPSILON = 1e-12
-
-
-def _as_1d_numeric(values: Any, *, name: str) -> np.ndarray:
-    if values is None:
-        raise ValueError(f"{name} não pode ser None")
-
-    array = np.asarray(values)
-    if array.ndim == 0:
-        array = array.reshape(1)
-    elif array.ndim > 1:
-        array = array.ravel()
-
-    try:
-        array = array.astype(float)
-    except (TypeError, ValueError) as exc:
-        raise TypeError(
-            f"{name} deve conter apenas valores numéricos; "
-            "use calculate_js_categorical para variáveis categóricas"
-        ) from exc
-
-    array = array[np.isfinite(array)]
-    if array.size == 0:
-        raise ValueError(f"{name} não contém valores finitos")
-    return array
 
 
 def _normalize(probabilities: np.ndarray, epsilon: float) -> np.ndarray:
@@ -114,8 +92,12 @@ def calculate_js(
     Returns:
         float: Distância JS em ``[0, 1]``.
     """
-    ref = _as_1d_numeric(reference, name="reference")
-    cur = _as_1d_numeric(current, name="current")
+    ref = as_1d_numeric(
+        reference, name="reference", categorical_hint="calculate_js_categorical"
+    )
+    cur = as_1d_numeric(
+        current, name="current", categorical_hint="calculate_js_categorical"
+    )
 
     ref_p, cur_p = _numeric_probabilities(ref, cur, bins, epsilon)
 

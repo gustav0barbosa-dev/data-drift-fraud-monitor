@@ -18,7 +18,6 @@ class Settings(BaseSettings):
     # API
     API_HOST: str = "0.0.0.0"
     API_PORT: int = 8000
-    API_VERSION: str = "v1"
     DEBUG: bool = True
 
     # CORS (lista separada por vírgulas)
@@ -26,16 +25,9 @@ class Settings(BaseSettings):
 
     # ML
     MODEL_PATH: str = "/app/models"
-    DEFAULT_MODEL: str = "xgboost"
     # Quando não há artefato treinado carregado, a API usa um preditor
     # determinístico para manter o dashboard e os testes funcionais.
     ALLOW_MOCK_PREDICTIONS: bool = True
-    
-    # Drift
-    PSI_THRESHOLD: float = 0.25
-    KS_PVALUE_THRESHOLD: float = 0.05
-    JS_THRESHOLD: float = 0.1
-    WASSERSTEIN_THRESHOLD: float = 0.1
     
     # Dataset
     DATASET_PATH: str = "/app/data/paysim.csv"

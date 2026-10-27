@@ -936,38 +936,6 @@ export function EmptyState({
   );
 }
 
-export function InlineAlert({
-  tone = 'info',
-  title,
-  children,
-  action,
-}: {
-  tone?: 'info' | 'warning' | 'danger' | 'success';
-  title: string;
-  children?: React.ReactNode;
-  action?: React.ReactNode;
-}) {
-  const map = {
-    info: { icon: Info, className: 'border-info/25 bg-info/8 text-info' },
-    warning: { icon: AlertTriangle, className: 'border-warn/30 bg-warn/8 text-warn' },
-    danger: { icon: AlertCircle, className: 'border-danger/30 bg-danger/8 text-danger' },
-    success: { icon: CheckCircle2, className: 'border-brand/30 bg-brand/8 text-brand' },
-  }[tone];
-  const Icon = map.icon;
-  return (
-    <div className={cx('flex items-start gap-3 rounded-xl border px-4 py-3', map.className)}>
-      <Icon className="mt-0.5 h-4 w-4 shrink-0" aria-hidden />
-      <div className="min-w-0 flex-1">
-        <p className="text-xs font-semibold text-ink">{title}</p>
-        {children ? (
-          <div className="mt-1 text-xs leading-relaxed text-muted">{children}</div>
-        ) : null}
-      </div>
-      {action}
-    </div>
-  );
-}
-
 export function InfoRow({
   label,
   value,

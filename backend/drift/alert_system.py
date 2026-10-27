@@ -178,12 +178,6 @@ class AlertSystem:
         1
     """
 
-    # Limiares legados (mantidos para compatibilidade com código existente).
-    PSI_THRESHOLD = DEFAULT_THRESHOLDS.psi.critical
-    KS_PVALUE_THRESHOLD = DEFAULT_THRESHOLDS.ks.critical
-    JS_THRESHOLD = DEFAULT_THRESHOLDS.js.critical
-    WASSERSTEIN_THRESHOLD = DEFAULT_THRESHOLDS.wasserstein.critical
-
     def __init__(
         self,
         db: Any = None,

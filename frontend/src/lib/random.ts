@@ -24,12 +24,3 @@ export function gaussian(random: () => number): number {
 export function logNormal(random: () => number, mu: number, sigma: number): number {
   return Math.exp(mu + sigma * gaussian(random));
 }
-
-export function pick<T>(random: () => number, items: T[]): T {
-  return items[Math.floor(random() * items.length) % items.length];
-}
-
-export function seededSeries(seed: number, length: number, min = 0, max = 1): number[] {
-  const random = mulberry32(seed);
-  return Array.from({ length }, () => min + random() * (max - min));
-}

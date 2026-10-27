@@ -40,11 +40,12 @@ if __package__ in (None, ""):
 
 from data.drift_simulator import DRIFT_LEVELS
 from data.loader import dataset_info, load_paysim
-from data.preprocess import FEATURES, build_features, temporal_split
+from data.preprocess import build_features, temporal_split
 from data.temporal_simulator import TemporalSimulator
 from experiments.common import (
     drift_signals,
     evaluate_windows,
+    format_metric,
     markdown_table,
     metric_row,
     save_results,
@@ -281,8 +282,8 @@ def build_markdown_report(results: dict[str, Any]) -> str:
         f"- Janelas por cenário: **{results['config']['n_windows']}**",
         f"- Modelo: **{results['model']['version']}** "
         f"({results['model']['model_type']})",
-        f"- Baseline (teste sem drift): F1 = **{_fmt(baseline.get('f1'))}**, "
-        f"AUC-ROC = **{_fmt(baseline.get('auc_roc'))}**",
+        f"- Baseline (teste sem drift): F1 = **{format_metric(baseline.get('f1'))}**, "
+        f"AUC-ROC = **{format_metric(baseline.get('auc_roc'))}**",
         "",
         "## Resumo por cenário",
         "",
@@ -403,10 +404,6 @@ def build_markdown_report(results: dict[str, Any]) -> str:
     return "\n".join(lines)
 
 
-def _fmt(value: Any) -> str:
-    return "—" if value is None else f"{float(value):.4f}"
-
-
 def _parse_args(argv: Optional[Sequence[str]] = None) -> argparse.Namespace:
     parser = argparse.ArgumentParser(
         description="E2 — avalia o baseline nos cenários de drift."
@@ -442,8 +439,8 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
 
     for row in results["summary"]:
         print(
-            f"[E2] {row['scenario']:<9} F1={_fmt(row['f1'])} "
-            f"AUC={_fmt(row['auc_roc'])} PSI={_fmt(row['max_psi'])}"
+            f"[E2] {row['scenario']:<9} F1={format_metric(row['f1'])} "
+            f"AUC={format_metric(row['auc_roc'])} PSI={format_metric(row['max_psi'])}"
         )
     print(f"[E2] Saídas: {args.output}")
     return 0

@@ -33,7 +33,7 @@ from data.preprocess import (
     build_labels,
     prepare_dataset,
 )
-from ml.metrics import aggregate_metrics, classification_metrics, find_best_threshold
+from ml.metrics import classification_metrics, find_best_threshold
 from ml.model import (
     FraudModel,
     backend_name,
@@ -245,11 +245,6 @@ def evaluate_model(
     metrics = classification_metrics(labels, scores, threshold=threshold)
     metrics["best_threshold"] = find_best_threshold(labels, scores)
     return metrics
-
-
-def aggregate_windows(windows: Sequence[dict[str, Any]]) -> dict[str, Any]:
-    """Atalho de compatibilidade para os experimentos."""
-    return aggregate_metrics(windows)
 
 
 def register_model_version(

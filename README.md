@@ -180,13 +180,12 @@ imediatamente. Os notebooks didáticos ficam em `notebooks/` (`01_eda` a `04_res
 | `RUN_MIGRATIONS`         | `true`                                   | Executa `alembic upgrade head` no entrypoint           |
 | `SEED_DATABASE`          | `true`                                   | Insere E1–E4 na primeira subida                        |
 | `BACKEND_RELOAD`         | `true`                                   | Hot-reload do Uvicorn (desligue em produção)           |
-| `PSI_THRESHOLD`          | `0.25`                                   | Limiar crítico de PSI                                  |
-| `KS_PVALUE_THRESHOLD`    | `0.05`                                   | p-valor crítico do KS                                  |
-| `JS_THRESHOLD`           | `0.1`                                    | Limiar crítico de Jensen-Shannon                       |
-| `WASSERSTEIN_THRESHOLD`  | `0.1`                                    | Limiar crítico da Wasserstein (normalizada)            |
 | `MODEL_PATH`             | `/app/models`                            | Diretório dos artefatos `.joblib`                      |
 | `DATASET_PATH`           | `/app/data/paysim.csv`                   | Caminho do PaySim                                      |
 | `NEXT_PUBLIC_API_URL`    | `http://localhost:8000`                  | URL da API usada pelo frontend (build-time)            |
+
+Os limiares de drift usados pela API são definidos em `backend/drift/thresholds.py`,
+não por variáveis de ambiente.
 
 ## Banco de dados e migrations
 
@@ -204,9 +203,9 @@ alembic revision --autogenerate -m "descrição"   # nova migration a partir dos
 alembic downgrade -1              # desfaz a última
 ```
 
-O `backend/db/schema.sql` é usado pelo Postgres na primeira inicialização do container
-(`docker-entrypoint-initdb.d`). Ele e a migration inicial são convergentes: `alembic upgrade head`
-usa `checkfirst=True`, portanto é seguro rodar sobre um banco já criado pelo `schema.sql`.
+O schema é criado exclusivamente pelo Alembic (`backend/db/migrations/`): o
+`entrypoint.sh` roda `alembic upgrade head` antes de subir a API, e o Postgres do
+compose não executa DDL na primeira inicialização.
 
 Para inspecionar o banco:
 
@@ -297,7 +296,7 @@ Detalhes do pipeline, features, artefatos e decisões em
 [`docs/pipeline_ml.md`](docs/pipeline_ml.md).
 
 Resultados do E3 em [`backend/experiments/results/e3/e3_results.json`](backend/experiments/results/e3/e3_results.json)
-e relatório em [`docs/relatorio_E3.md`](docs/relatorio_E3.md).
+e relatório em [`backend/experiments/results/e3/e3_report.md`](backend/experiments/results/e3/e3_report.md).
 
 Os experimentos da Pessoa 1 geram, em `backend/experiments/results/`:
 
@@ -362,7 +361,6 @@ data-drift-fraud-monitor/
 │   ├── data/                    # loader, preprocess, simuladores
 │   ├── db/
 │   │   ├── models.py            # 8 tabelas SQLAlchemy
-│   │   ├── schema.sql           # DDL para init do container
 │   │   ├── migrations/          # Alembic (env + versions)
 │   │   └── init_db.py           # seed E1–E4
 │   ├── experiments/             # e1–e4 + análise estatística

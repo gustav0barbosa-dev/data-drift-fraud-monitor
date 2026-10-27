@@ -1,13 +1,11 @@
 """initial schema
 
 Cria o esquema inicial do banco (8 tabelas + índices) a partir do metadata dos
-modelos SQLAlchemy, além das funções, triggers e views que o ``schema.sql``
-define. Assim o fluxo "somente Alembic" produz o mesmo banco que o init do
-container.
+modelos SQLAlchemy, além das funções, triggers e views que complementam o ORM.
+Esta migration é a fonte única do schema, aplicada pelo entrypoint do backend.
 
 A migration é idempotente (``checkfirst=True`` + ``CREATE OR REPLACE``): bancos
-já inicializados pelo ``backend/db/schema.sql`` recebem apenas o carimbo da
-versão no ``alembic_version``.
+já existentes recebem apenas o carimbo da versão no ``alembic_version``.
 
 Revision ID: 0001_initial
 Revises:
@@ -28,7 +26,7 @@ depends_on: Union[str, Sequence[str], None] = None
 
 
 # ============================================================
-# Funções e triggers (espelham backend/db/schema.sql)
+# Funções e triggers (complementam o metadata do ORM)
 # ============================================================
 FUNCTIONS_AND_TRIGGERS = (
     """

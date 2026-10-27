@@ -17,7 +17,6 @@ from __future__ import annotations
 from dataclasses import dataclass
 from typing import Sequence
 
-import numpy as np
 import pandas as pd
 
 from data.loader import standardize_columns
@@ -44,18 +43,6 @@ FEATURES: list[str] = [
 ]
 
 TARGET = "is_fraud"
-
-# Colunas que nunca entram como feature.
-NON_FEATURE_COLUMNS = {
-    TARGET,
-    "is_flagged_fraud",
-    "id",
-    "created_at",
-    "predicted_at",
-    "name_orig",
-    "name_dest",
-    "source",
-}
 
 
 @dataclass(frozen=True)
@@ -197,24 +184,9 @@ def prepare_dataset(
     )
 
 
-def split_frames(
-    df: pd.DataFrame,
-    *,
-    train_ratio: float = 0.7,
-) -> tuple[pd.DataFrame, pd.DataFrame]:
-    """Atalho para obter os DataFrames de treino/teste normalizados."""
-    normalized = standardize_columns(df)
-    return temporal_split(normalized, train_ratio=train_ratio)
-
-
 def ensure_feature_columns(frame: pd.DataFrame, features: Sequence[str] = FEATURES) -> pd.DataFrame:
     """Garante a ordem e a presença das features esperadas pelo artefato."""
     missing = [column for column in features if column not in frame.columns]
     if missing:
         raise ValueError(f"Features ausentes: {missing}")
     return frame[list(features)]
-
-
-def clip_probabilities(values: np.ndarray) -> np.ndarray:
-    """Mantém probabilidades em [0, 1] e sem NaN."""
-    return np.clip(np.nan_to_num(values, nan=0.0), 0.0, 1.0)

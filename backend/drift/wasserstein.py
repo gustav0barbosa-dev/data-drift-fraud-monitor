@@ -26,31 +26,10 @@ from typing import Any, Literal
 import numpy as np
 from scipy.stats import wasserstein_distance
 
+from drift._utils import as_1d_numeric
+
 DEFAULT_EPSILON = 1e-12
 ScaleMethod = Literal["std", "iqr"]
-
-
-def _as_1d_numeric(values: Any, *, name: str) -> np.ndarray:
-    if values is None:
-        raise ValueError(f"{name} não pode ser None")
-
-    array = np.asarray(values)
-    if array.ndim == 0:
-        array = array.reshape(1)
-    elif array.ndim > 1:
-        array = array.ravel()
-
-    try:
-        array = array.astype(float)
-    except (TypeError, ValueError) as exc:
-        raise TypeError(
-            f"{name} deve conter apenas valores numéricos"
-        ) from exc
-
-    array = array[np.isfinite(array)]
-    if array.size == 0:
-        raise ValueError(f"{name} não contém valores finitos")
-    return array
 
 
 def calculate_wasserstein(reference: Any, current: Any) -> float:
@@ -60,8 +39,8 @@ def calculate_wasserstein(reference: Any, current: Any) -> float:
     Returns:
         float: Distância >= 0, na mesma unidade dos dados.
     """
-    ref = _as_1d_numeric(reference, name="reference")
-    cur = _as_1d_numeric(current, name="current")
+    ref = as_1d_numeric(reference, name="reference")
+    cur = as_1d_numeric(current, name="current")
     return float(wasserstein_distance(ref, cur))
 
 
@@ -100,8 +79,8 @@ def calculate_wasserstein_normalized(
     if method not in ("std", "iqr"):
         raise ValueError(f"Método de escala inválido: {method!r}")
 
-    ref = _as_1d_numeric(reference, name="reference")
-    cur = _as_1d_numeric(current, name="current")
+    ref = as_1d_numeric(reference, name="reference")
+    cur = as_1d_numeric(current, name="current")
     raw = float(wasserstein_distance(ref, cur))
 
     if raw == 0.0:

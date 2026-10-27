@@ -4,7 +4,6 @@ Endpoints de gerenciamento de experimentos.
 from fastapi import APIRouter, Depends, status
 from sqlalchemy.orm import Session
 from sqlalchemy import or_
-from typing import Optional
 
 from api.dependencies import get_db, get_pagination, PaginationParams, get_experiment_filters, ExperimentFilters
 from api.schemas.experiment import (

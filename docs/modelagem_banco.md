@@ -1,8 +1,8 @@
 # Modelagem do banco de dados
 
-Esquema PostgreSQL 15 da plataforma, definido em [`backend/db/schema.sql`](../backend/db/schema.sql)
-(init do container) e em [`backend/db/models.py`](../backend/db/models.py) (ORM SQLAlchemy).
-As migrations Alembic ficam em [`backend/db/migrations`](../backend/db/migrations).
+Esquema PostgreSQL 15 da plataforma, definido em [`backend/db/models.py`](../backend/db/models.py)
+(ORM SQLAlchemy) e aplicado pelas migrations Alembic em
+[`backend/db/migrations`](../backend/db/migrations), a fonte única do schema.
 
 ## Diagrama ER
 
@@ -169,7 +169,7 @@ erDiagram
 ```bash
 cd backend
 
-alembic upgrade head       # aplica o esquema (idempotente com schema.sql)
+alembic upgrade head       # aplica o esquema (idempotente)
 alembic current            # revisão aplicada
 alembic history            # histórico
 alembic upgrade head --sql # SQL gerado, sem conectar
@@ -179,9 +179,8 @@ alembic downgrade -1
 
 A revisão inicial (`0001_initial`) cria as oito tabelas a partir do metadata do ORM e, em seguida,
 as duas funções PL/pgSQL, os dois triggers (`updated_at` e modelo ativo único) e as duas views
-(`v_drift_summary`, `v_performance_summary`) — o mesmo conjunto do `schema.sql`. Como usa
-`checkfirst=True` e `CREATE OR REPLACE`, rodar sobre um banco já inicializado pelo `schema.sql`
-apenas registra a versão em `alembic_version`.
+(`v_drift_summary`, `v_performance_summary`). Como usa `checkfirst=True` e `CREATE OR REPLACE`,
+a migration pode ser aplicada também sobre um banco já existente.
 
 ## Volumetria e retenção
 
