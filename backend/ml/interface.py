@@ -3,9 +3,8 @@
 Contratos (interfaces) do módulo ML.
 Define o que a API espera do módulo de Machine Learning.
 """
-from typing import Protocol, Any
+from typing import Protocol
 import pandas as pd
-import numpy as np
 
 
 class FraudPredictorProtocol(Protocol):

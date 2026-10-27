@@ -6,13 +6,11 @@ temporal, o simulador de janelas e os três cenários de drift.
 """
 from __future__ import annotations
 
-import numpy as np
 import pandas as pd
 import pytest
 
 from data.drift_simulator import (
     DRIFT_LEVELS,
-    DriftSimulator,
     apply_drift,
     drift_level_info,
     level_summary,

@@ -40,7 +40,7 @@ if __package__ in (None, ""):
 
 from data.drift_simulator import DRIFT_LEVELS
 from data.loader import dataset_info, load_paysim
-from data.preprocess import FEATURES, build_features, temporal_split
+from data.preprocess import build_features, temporal_split
 from data.temporal_simulator import TemporalSimulator
 from experiments.common import (
     drift_signals,

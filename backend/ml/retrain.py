@@ -26,7 +26,7 @@ import pandas as pd
 
 from data.drift_simulator import DriftLevel, apply_drift
 from data.loader import load_paysim, standardize_columns
-from data.preprocess import FEATURES, build_features, build_labels, temporal_split
+from data.preprocess import build_features, build_labels, temporal_split
 from ml.metrics import classification_metrics, find_best_threshold
 from ml.model import (
     FraudModel,

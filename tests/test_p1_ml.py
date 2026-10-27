@@ -6,7 +6,6 @@ suíte rápida, sem depender do PaySim real nem de banco de dados.
 """
 from __future__ import annotations
 
-from datetime import datetime, timedelta, timezone
 from decimal import Decimal
 
 import numpy as np
@@ -14,7 +13,7 @@ import pandas as pd
 import pytest
 
 from data.loader import generate_synthetic_paysim
-from data.preprocess import FEATURES, build_features, build_labels, temporal_split
+from data.preprocess import FEATURES, build_features, temporal_split
 from ml.metrics import (
     aggregate_metrics,
     classification_metrics,
@@ -30,7 +29,6 @@ from ml.model import (
 )
 from ml.predict import FraudPredictor, MockFraudPredictor
 from ml.retrain import (
-    ModelRetrainer,
     alert_triggers_retraining,
     next_version,
     retrain_model,

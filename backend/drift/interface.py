@@ -5,7 +5,7 @@ Contratos (interfaces) do módulo de Drift.
 Define o que a API espera do módulo de detecção de drift. A implementação
 concreta é :class:`drift.detector.DriftDetector`.
 """
-from typing import Any, Iterable, Optional, Protocol
+from typing import Iterable, Optional, Protocol
 
 import numpy as np
 
