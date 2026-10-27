@@ -6,8 +6,12 @@ from fastapi import Depends, Query
 from sqlalchemy.orm import Session
 
 from db.database import SessionLocal
-from ml.predict import FraudPredictor
+from db.config import settings
+from ml.predict import FraudPredictor, MockFraudPredictor
 from api.exceptions import ModelNotLoadedException
+
+# Instância única do preditor heurístico (fallback sem artefato treinado).
+_mock_predictor: Optional[MockFraudPredictor] = None
 
 
 # ============================================================
@@ -24,23 +28,45 @@ def get_db() -> Generator[Session, None, None]:
     finally:
         db.close()
 
-def get_predictor() -> FraudPredictor:
-    """Obtém o preditor carregado."""
+def get_predictor():
+    """
+    Obtém o preditor carregado.
+
+    Sem artefato treinado, retorna o preditor heurístico determinístico quando
+    ``ALLOW_MOCK_PREDICTIONS`` está ativo (padrão em desenvolvimento). Assim a
+    API permanece utilizável antes do pipeline de treinamento da Pessoa 1.
+    """
     from api.main import app_state
-    
-    if app_state.predictor is None or not app_state.predictor.is_loaded():
-        raise ModelNotLoadedException()
-    
-    return app_state.predictor
+
+    if app_state.predictor is not None and app_state.predictor.is_loaded():
+        return app_state.predictor
+
+    if settings.ALLOW_MOCK_PREDICTIONS:
+        global _mock_predictor
+        if _mock_predictor is None:
+            _mock_predictor = MockFraudPredictor()
+        return _mock_predictor
+
+    raise ModelNotLoadedException()
 
 
-def get_active_model_version(db: Session = Depends(get_db)):
-    """Obtém a versão ativa do modelo."""
-    from db.models import ModelVersion
-    model = db.query(ModelVersion).filter(ModelVersion.is_active == True).first()
-    if not model:
-        raise ModelNotLoadedException()
-    return model
+def get_active_model_version():
+    """
+    Obtém a versão ativa do modelo registrada no banco.
+
+    Usa o estado carregado no startup (``app_state``) para não consultar o banco
+    a cada predição. Retorna ``None`` quando não há métricas persistidas e as
+    predições heurísticas estão habilitadas.
+    """
+    from api.main import app_state
+
+    if app_state.active_model_version is not None:
+        return app_state.active_model_version
+
+    if settings.ALLOW_MOCK_PREDICTIONS:
+        return None
+
+    raise ModelNotLoadedException()
 
 
 # ============================================================

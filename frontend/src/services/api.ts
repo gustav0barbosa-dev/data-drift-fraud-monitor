@@ -12,6 +12,8 @@ import {
   FeatureDriftApiResponse,
   FeatureDriftRequest,
   HealthResponse,
+  ModelVersionApiResponse,
+  ModelVersionListApiResponse,
   PerformanceApiResponse,
   PerformancePoint,
   PerformanceSummary,
@@ -272,9 +274,28 @@ export const api = {
     },
   },
 
-  metrics: {
-    async performance(modelVersionId: number): Promise<PerformancePoint[]> {
+  models: {
+    async list(
+      experimentId: number,
+    ): Promise<ModelVersionListApiResponse> {
       const client = createClient();
+      const { data } = await client.get<ModelVersionListApiResponse>(
+        `/api/v1/models/${experimentId}`,
+      );
+      return data;
+    },
+
+    async active(experimentId: number): Promise<ModelVersionApiResponse> {
+      const client = createClient();
+      const { data } = await client.get<ModelVersionApiResponse>(
+        `/api/v1/models/${experimentId}/active`,
+      );
+      return data;
+    },
+  },
+
+  metrics: {
+    async performance(modelVersionId: number): Promise<PerformancePoint[]> {      const client = createClient();
       const { data } = await client.get<PerformanceApiResponse[]>(
         `/api/v1/metrics/performance/${modelVersionId}`,
       );

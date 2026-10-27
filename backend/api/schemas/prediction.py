@@ -4,6 +4,7 @@ Schemas Pydantic para predições.
 from pydantic import BaseModel, Field, field_validator
 from datetime import datetime
 from decimal import Decimal
+from typing import Literal, Optional
 
 
 # ============================================================
@@ -12,7 +13,10 @@ from decimal import Decimal
 class PredictionResponse(BaseModel):
     """Schema de resposta de predição."""
     
-    id: int
+    id: Optional[int] = Field(
+        None,
+        description="ID da predição persistida (nulo em modo mock sem modelo ativo)"
+    )
     transaction_id: int
     is_fraud: bool = Field(..., description="Classificação binária")
     probability: Decimal = Field(
@@ -22,7 +26,11 @@ class PredictionResponse(BaseModel):
         description="Probabilidade de fraude (0-1)"
     )
     latency_ms: Decimal = Field(..., description="Latência da predição em ms")
-    predicted_at: datetime
+    predicted_at: Optional[datetime] = None
+    mode: Optional[Literal["model", "mock"]] = Field(
+        None,
+        description="Origem do scoring: artefato treinado ou preditor heurístico"
+    )
     
     class Config:
         from_attributes = True
@@ -43,3 +51,7 @@ class PredictionBatchResponse(BaseModel):
     predictions: list[PredictionBatchItem]
     total_latency_ms: Decimal = Field(..., description="Latência total")
     avg_latency_ms: Decimal = Field(..., description="Latência média")
+    mode: Optional[Literal["model", "mock"]] = Field(
+        None,
+        description="Origem do scoring: artefato treinado ou preditor heurístico"
+    )

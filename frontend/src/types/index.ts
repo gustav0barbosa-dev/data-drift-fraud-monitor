@@ -261,6 +261,25 @@ export interface ModelInfo {
   featureImportance: { feature: string; importance: number }[];
 }
 
+export interface ModelVersionApiResponse {
+  id: number;
+  experiment_id: number;
+  version: string;
+  model_path: string;
+  model_type: string;
+  hyperparameters: Record<string, unknown>;
+  training_metrics: Record<string, unknown>;
+  trained_at: string | null;
+  is_active: boolean;
+  created_at: string | null;
+}
+
+export interface ModelVersionListApiResponse {
+  items: ModelVersionApiResponse[];
+  total: number;
+  active: ModelVersionApiResponse | null;
+}
+
 export interface ScenarioPerformance {
   level: DriftLevel;
   label: string;

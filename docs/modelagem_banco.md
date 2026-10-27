@@ -1,243 +1,200 @@
-2.1 Diagrama Entidade-Relacionamento (ER)
-text
-┌─────────────────┐       ┌─────────────────┐       ┌─────────────────┐
-│   experiments   │       │  model_versions │       │   predictions   │
-├─────────────────┤       ├─────────────────┤       ├─────────────────┤
-│ id (PK)         │──┐    │ id (PK)         │──┐    │ id (PK)         │
-│ name            │  │    │ experiment_id   │  │    │ model_version_id│
-│ description     │  │    │ version         │  │    │ transaction_id  │
-│ drift_level     │  └───>│ model_path      │  └───>│ is_fraud        │
-│ status          │       │ trained_at      │       │ probability     │
-│ started_at      │       │ metrics (JSON)  │       │ predicted_at    │
-│ finished_at     │       │ is_active       │       │ latency_ms      │
-│ config (JSON)   │       └─────────────────┘       └─────────────────┘
-└─────────────────┘                │
-         │                         │
-         │                         ▼
-         │                ┌─────────────────┐
-         │                │  performance    │
-         │                ├─────────────────┤
-         │                │ id (PK)         │
-         │                │ model_version_id│
-         │                │ window_start    │
-         │                │ window_end      │
-         │                │ accuracy        │
-         │                │ precision       │
-         │                │ recall          │
-         │                │ f1_score        │
-         │                │ auc_roc         │
-         │                └─────────────────┘
-         │
-         ▼
-┌─────────────────┐       ┌─────────────────┐       ┌─────────────────┐
-│    alerts       │       │  drift_metrics  │       │  transactions   │
-├─────────────────┤       ├─────────────────┤       ├─────────────────┤
-│ id (PK)         │       │ id (PK)         │       │ id (PK)         │
-│ experiment_id   │       │ experiment_id   │       │ step            │
-│ model_version_id│       │ window_start    │       │ type            │
-│ alert_type      │       │ window_end      │       │ amount          │
-│ severity        │       │ feature_name    │       │ old_balance_org │
-│ message         │       │ psi_value       │       │ new_balance_org │
-│ triggered_at    │       │ ks_value        │       │ old_balance_dest│
-│ is_resolved     │       │ js_value        │       │ new_balance_dest│
-│ resolved_at     │       │ wasserstein_val │       │ is_fraud        │
-└─────────────────┘       │ threshold       │       │ is_flagged_fraud│
-                          │ is_drift        │       │ created_at      │
-                          └─────────────────┘       └─────────────────┘
+# Modelagem do banco de dados
 
+Esquema PostgreSQL 15 da plataforma, definido em [`backend/db/schema.sql`](../backend/db/schema.sql)
+(init do container) e em [`backend/db/models.py`](../backend/db/models.py) (ORM SQLAlchemy).
+As migrations Alembic ficam em [`backend/db/migrations`](../backend/db/migrations).
 
+## Diagrama ER
 
-2.2 Esquema SQL Completo
+```mermaid
+erDiagram
+    EXPERIMENTS ||--o{ MODEL_VERSIONS : "treina"
+    EXPERIMENTS ||--o{ DRIFT_METRICS : "mede"
+    EXPERIMENTS ||--o{ ALERTS : "dispara"
+    EXPERIMENTS ||--o{ FEATURE_STATS : "descreve"
+    MODEL_VERSIONS ||--o{ PREDICTIONS : "produz"
+    MODEL_VERSIONS ||--o{ PERFORMANCE : "avalia"
+    MODEL_VERSIONS ||--o{ ALERTS : "origina"
+    TRANSACTIONS ||--o{ PREDICTIONS : "recebe"
 
--- ============================================================
--- TABELA: experiments
--- Armazena os experimentos científicos realizados
--- ============================================================
-CREATE TABLE experiments (
-    id SERIAL PRIMARY KEY,
-    name VARCHAR(255) NOT NULL UNIQUE,
-    description TEXT,
-    drift_level VARCHAR(50) NOT NULL CHECK (drift_level IN ('none', 'low', 'moderate', 'high')),
-    status VARCHAR(50) NOT NULL DEFAULT 'pending' CHECK (status IN ('pending', 'running', 'completed', 'failed')),
-    config JSONB DEFAULT '{}',
-    started_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
-    finished_at TIMESTAMP WITH TIME ZONE,
-    created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
-    updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
-);
+    EXPERIMENTS {
+        serial id PK
+        varchar name UK "nome único"
+        text description
+        varchar drift_level "none|low|moderate|high"
+        varchar status "pending|running|completed|failed"
+        jsonb config "janelas, cenário, flags"
+        timestamptz started_at
+        timestamptz finished_at
+        timestamptz created_at
+        timestamptz updated_at "trigger"
+    }
 
-CREATE INDEX idx_experiments_status ON experiments(status);
-CREATE INDEX idx_experiments_drift_level ON experiments(drift_level);
+    MODEL_VERSIONS {
+        serial id PK
+        int experiment_id FK
+        varchar version
+        varchar model_path "artefato .joblib"
+        varchar model_type "XGBoost"
+        jsonb hyperparameters
+        jsonb training_metrics "accuracy, f1, pr_auc, ..."
+        timestamptz trained_at
+        boolean is_active "índice parcial"
+        timestamptz created_at
+    }
 
--- ============================================================
--- TABELA: model_versions
--- Armazena as versões dos modelos treinados
--- ============================================================
-CREATE TABLE model_versions (
-    id SERIAL PRIMARY KEY,
-    experiment_id INTEGER REFERENCES experiments(id) ON DELETE CASCADE,
-    version VARCHAR(50) NOT NULL,
-    model_path VARCHAR(500) NOT NULL,
-    model_type VARCHAR(100) DEFAULT 'XGBoost',
-    hyperparameters JSONB DEFAULT '{}',
-    training_metrics JSONB DEFAULT '{}',
-    trained_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
-    is_active BOOLEAN DEFAULT FALSE,
-    created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
-    UNIQUE(experiment_id, version)
-);
+    TRANSACTIONS {
+        bigint id PK
+        int step "tempo PaySim"
+        varchar type "PAYMENT|TRANSFER|CASH_IN|CASH_OUT|DEBIT"
+        numeric amount
+        numeric old_balance_org
+        numeric new_balance_org
+        numeric old_balance_dest
+        numeric new_balance_dest
+        boolean is_fraud
+        boolean is_flagged_fraud
+        timestamptz created_at
+    }
 
-CREATE INDEX idx_model_versions_experiment ON model_versions(experiment_id);
-CREATE INDEX idx_model_versions_active ON model_versions(is_active);
+    PREDICTIONS {
+        bigint id PK
+        int model_version_id FK
+        bigint transaction_id FK
+        boolean is_fraud
+        numeric probability "0..1"
+        timestamptz predicted_at
+        numeric latency_ms
+    }
 
--- ============================================================
--- TABELA: transactions
--- Armazena as transações processadas (PaySim)
--- ============================================================
-CREATE TABLE transactions (
-    id SERIAL PRIMARY KEY,
-    step INTEGER NOT NULL,
-    type VARCHAR(50) NOT NULL,
-    amount DECIMAL(15, 2) NOT NULL,
-    old_balance_org DECIMAL(15, 2),
-    new_balance_org DECIMAL(15, 2),
-    old_balance_dest DECIMAL(15, 2),
-    new_balance_dest DECIMAL(15, 2),
-    is_fraud BOOLEAN DEFAULT FALSE,
-    is_flagged_fraud BOOLEAN DEFAULT FALSE,
-    created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
-);
+    PERFORMANCE {
+        serial id PK
+        int model_version_id FK
+        timestamptz window_start
+        timestamptz window_end
+        numeric accuracy
+        numeric precision
+        numeric recall
+        numeric f1_score
+        numeric auc_roc
+        int total_predictions
+        int true_positives
+        int false_positives
+        int true_negatives
+        int false_negatives
+        timestamptz created_at
+    }
 
-CREATE INDEX idx_transactions_step ON transactions(step);
-CREATE INDEX idx_transactions_type ON transactions(type);
-CREATE INDEX idx_transactions_is_fraud ON transactions(is_fraud);
+    DRIFT_METRICS {
+        bigint id PK
+        int experiment_id FK
+        timestamptz window_start
+        timestamptz window_end
+        varchar feature_name
+        numeric psi_value
+        numeric ks_value
+        numeric ks_pvalue
+        numeric js_value
+        numeric wasserstein_value
+        numeric threshold
+        boolean is_drift
+        timestamptz created_at
+    }
 
--- ============================================================
--- TABELA: predictions
--- Armazena as predições do modelo
--- ============================================================
-CREATE TABLE predictions (
-    id SERIAL PRIMARY KEY,
-    model_version_id INTEGER REFERENCES model_versions(id) ON DELETE CASCADE,
-    transaction_id INTEGER REFERENCES transactions(id) ON DELETE CASCADE,
-    is_fraud BOOLEAN NOT NULL,
-    probability DECIMAL(5, 4) NOT NULL CHECK (probability >= 0 AND probability <= 1),
-    predicted_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
-    latency_ms DECIMAL(10, 2)
-);
+    ALERTS {
+        bigint id PK
+        int experiment_id FK
+        int model_version_id FK
+        varchar alert_type "drift_detected|performance_degradation|retrain_triggered|retrain_completed|threshold_exceeded"
+        varchar severity "info|warning|critical"
+        text message
+        jsonb metadata
+        timestamptz triggered_at
+        boolean is_resolved
+        timestamptz resolved_at
+    }
 
-CREATE INDEX idx_predictions_model ON predictions(model_version_id);
-CREATE INDEX idx_predictions_transaction ON predictions(transaction_id);
-CREATE INDEX idx_predictions_predicted_at ON predictions(predicted_at);
+    FEATURE_STATS {
+        bigint id PK
+        int experiment_id FK
+        timestamptz window_start
+        timestamptz window_end
+        varchar feature_name
+        numeric mean
+        numeric std
+        numeric min
+        numeric max
+        numeric median
+        numeric q25
+        numeric q75
+        int count
+        timestamptz created_at
+    }
+```
 
--- ============================================================
--- TABELA: performance
--- Armazena métricas de desempenho por janela temporal
--- ============================================================
-CREATE TABLE performance (
-    id SERIAL PRIMARY KEY,
-    model_version_id INTEGER REFERENCES model_versions(id) ON DELETE CASCADE,
-    window_start TIMESTAMP WITH TIME ZONE NOT NULL,
-    window_end TIMESTAMP WITH TIME ZONE NOT NULL,
-    accuracy DECIMAL(5, 4),
-    precision DECIMAL(5, 4),
-    recall DECIMAL(5, 4),
-    f1_score DECIMAL(5, 4),
-    auc_roc DECIMAL(5, 4),
-    total_predictions INTEGER DEFAULT 0,
-    true_positives INTEGER DEFAULT 0,
-    false_positives INTEGER DEFAULT 0,
-    true_negatives INTEGER DEFAULT 0,
-    false_negatives INTEGER DEFAULT 0,
-    created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
-);
+### Regras de integridade
 
-CREATE INDEX idx_performance_model ON performance(model_version_id);
-CREATE INDEX idx_performance_window ON performance(window_start, window_end);
+| Regra | Implementação |
+| ----- | ------------- |
+| Exclusão de experimento remove dependentes | `ON DELETE CASCADE` em todas as FKs para `experiments` |
+| Exclusão de modelo remove predições e métricas | `ON DELETE CASCADE` em `predictions` e `performance` |
+| `drift_level` e `status` válidos | `CHECK` constraints nomeadas |
+| `probability` entre 0 e 1 | `CHECK ck_predictions_probability` |
+| Janelas coerentes | `CHECK window_end > window_start` |
+| Apenas um modelo ativo por experimento | trigger `trg_deactivate_previous_models` |
+| `updated_at` automático | trigger `update_experiments_updated_at` |
 
--- ============================================================
--- TABELA: drift_metrics
--- Armazena as métricas de drift calculadas por feature
--- ============================================================
-CREATE TABLE drift_metrics (
-    id SERIAL PRIMARY KEY,
-    experiment_id INTEGER REFERENCES experiments(id) ON DELETE CASCADE,
-    window_start TIMESTAMP WITH TIME ZONE NOT NULL,
-    window_end TIMESTAMP WITH TIME ZONE NOT NULL,
-    feature_name VARCHAR(255) NOT NULL,
-    psi_value DECIMAL(10, 6),
-    ks_value DECIMAL(10, 6),
-    ks_pvalue DECIMAL(10, 6),
-    js_value DECIMAL(10, 6),
-    wasserstein_value DECIMAL(10, 6),
-    threshold DECIMAL(10, 6),
-    is_drift BOOLEAN DEFAULT FALSE,
-    created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
-);
+### Índices
 
-CREATE INDEX idx_drift_experiment ON drift_metrics(experiment_id);
-CREATE INDEX idx_drift_feature ON drift_metrics(feature_name);
-CREATE INDEX idx_drift_window ON drift_metrics(window_start, window_end);
-CREATE INDEX idx_drift_is_drift ON drift_metrics(is_drift);
+| Índice | Tabela | Objetivo |
+| ------ | ------ | -------- |
+| `idx_experiments_status`, `idx_experiments_drift_level` | experiments | filtros do dashboard |
+| `idx_model_versions_experiment` | model_versions | versões por experimento |
+| `idx_model_versions_active` (parcial) | model_versions | busca do modelo ativo |
+| `idx_transactions_step`, `idx_transactions_type` | transactions | janelas temporais |
+| `idx_transactions_is_fraud` (parcial) | transactions | taxa de fraude |
+| `idx_predictions_model`, `idx_predictions_transaction`, `idx_predictions_predicted_at` | predictions | auditoria e séries |
+| `idx_performance_model`, `idx_performance_window` | performance | séries de F1/AUC |
+| `idx_drift_experiment`, `idx_drift_feature`, `idx_drift_window`, `idx_drift_experiment_feature` | drift_metrics | consultas do endpoint de drift |
+| `idx_alerts_experiment`, `idx_alerts_type`, `idx_alerts_severity`, `idx_alerts_triggered_at` | alerts | painel de alertas |
+| `idx_feature_stats_experiment`, `idx_feature_stats_feature`, `idx_feature_stats_window` | feature_stats | estatísticas descritivas |
 
--- ============================================================
--- TABELA: alerts
--- Armazena os alertas disparados pelo sistema
--- ============================================================
-CREATE TABLE alerts (
-    id SERIAL PRIMARY KEY,
-    experiment_id INTEGER REFERENCES experiments(id) ON DELETE CASCADE,
-    model_version_id INTEGER REFERENCES model_versions(id) ON DELETE CASCADE,
-    alert_type VARCHAR(50) NOT NULL CHECK (alert_type IN ('drift_detected', 'performance_degradation', 'retrain_triggered', 'retrain_completed')),
-    severity VARCHAR(20) NOT NULL CHECK (severity IN ('info', 'warning', 'critical')),
-    message TEXT NOT NULL,
-    metadata JSONB DEFAULT '{}',
-    triggered_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
-    is_resolved BOOLEAN DEFAULT FALSE,
-    resolved_at TIMESTAMP WITH TIME ZONE
-);
+### Views auxiliares
 
-CREATE INDEX idx_alerts_experiment ON alerts(experiment_id);
-CREATE INDEX idx_alerts_type ON alerts(alert_type);
-CREATE INDEX idx_alerts_severity ON alerts(severity);
-CREATE INDEX idx_alerts_triggered_at ON alerts(triggered_at);
+- `v_drift_summary` — métricas de drift por experimento/feature/janela.
+- `v_performance_summary` — médias e extremos de F1 por versão de modelo.
 
--- ============================================================
--- TABELA: feature_stats
--- Armazena estatísticas descritivas das features por janela
--- ============================================================
-CREATE TABLE feature_stats (
-    id SERIAL PRIMARY KEY,
-    experiment_id INTEGER REFERENCES experiments(id) ON DELETE CASCADE,
-    window_start TIMESTAMP WITH TIME ZONE NOT NULL,
-    window_end TIMESTAMP WITH TIME ZONE NOT NULL,
-    feature_name VARCHAR(255) NOT NULL,
-    mean DECIMAL(15, 6),
-    std DECIMAL(15, 6),
-    min DECIMAL(15, 6),
-    max DECIMAL(15, 6),
-    median DECIMAL(15, 6),
-    q25 DECIMAL(15, 6),
-    q75 DECIMAL(15, 6),
-    count INTEGER,
-    created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
-);
+## Migrations (Alembic)
 
-CREATE INDEX idx_feature_stats_experiment ON feature_stats(experiment_id);
-CREATE INDEX idx_feature_stats_feature ON feature_stats(feature_name);
+```bash
+cd backend
 
--- ============================================================
--- TRIGGERS para updated_at
--- ============================================================
-CREATE OR REPLACE FUNCTION update_updated_at_column()
-RETURNS TRIGGER AS $$
-BEGIN
-    NEW.updated_at = NOW();
-    RETURN NEW;
-END;
-$$ LANGUAGE plpgsql;
+alembic upgrade head       # aplica o esquema (idempotente com schema.sql)
+alembic current            # revisão aplicada
+alembic history            # histórico
+alembic upgrade head --sql # SQL gerado, sem conectar
+alembic revision --autogenerate -m "nova coluna"
+alembic downgrade -1
+```
 
-CREATE TRIGGER update_experiments_updated_at
-    BEFORE UPDATE ON experiments
-    FOR EACH ROW
-    EXECUTE FUNCTION update_updated_at_column();
+A revisão inicial (`0001_initial`) cria as oito tabelas a partir do metadata do ORM e, em seguida,
+as duas funções PL/pgSQL, os dois triggers (`updated_at` e modelo ativo único) e as duas views
+(`v_drift_summary`, `v_performance_summary`) — o mesmo conjunto do `schema.sql`. Como usa
+`checkfirst=True` e `CREATE OR REPLACE`, rodar sobre um banco já inicializado pelo `schema.sql`
+apenas registra a versão em `alembic_version`.
+
+## Volumetria e retenção
+
+- `transactions` e `predictions` crescem por transação: particionar por `step`/`predicted_at` ou
+  arquivar janelas antigas após o experimento.
+- `drift_metrics` cresce por `features × janelas`: manter índices compostos
+  `(experiment_id, window_start)` e reter apenas o horizonte de análise.
+- `performance` e `feature_stats` são séries curtas (uma linha por janela).
+- `alerts` deve ser retido para auditoria; usar `is_resolved` nas consultas do dashboard.
+
+## Backup
+
+```bash
+docker-compose exec db pg_dump -U admin -d drift_monitor -Fc > backup.dump
+docker-compose exec -T db pg_restore -U admin -d drift_monitor --clean < backup.dump
+```

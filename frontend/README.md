@@ -52,10 +52,13 @@ Componentes exigidos pelo documento: `Dashboard.tsx`, `MetricsChart.tsx`, `Drift
 ## Modos de dados
 
 1. **Live** — `online === true` e a API responde: séries, resumo e alertas vêm de
-   `/api/v1/drift/...` e `/api/v1/metrics/...`.
+   `/api/v1/drift/...`, `/api/v1/metrics/...` e `/api/v1/models/...`.
 2. **Híbrido** — `source: 'mixed'`: usa o que a API entregou e completa o restante com demo.
 3. **Demo** — API offline, `forceDemo` ativo ou `experimentsSource === 'demo'`: dados simulados
    determinísticos (`src/data/mock.ts`), com o mesmo contrato de tipos da API.
+
+O modo Live exige as quatro fontes (métricas de drift, resumo, alertas e metadados do modelo);
+se alguma falhar, o dashboard cai para híbrido sem perder as demais.
 
 O selo **Demo/Online** no topo e o `SourceBadge` no banner do experimento indicam a origem atual.
 O polling é configurável em Configurações (`pollInterval`), e experimentos de demonstração nunca

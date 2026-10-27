@@ -1,9 +1,8 @@
 """
 Configuração da conexão com o banco de dados PostgreSQL.
 """
-from sqlalchemy import create_engine
-from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.orm import sessionmaker
+from sqlalchemy import create_engine, text
+from sqlalchemy.orm import declarative_base, sessionmaker
 from sqlalchemy.pool import QueuePool
 import logging
 
@@ -51,7 +50,7 @@ def test_connection() -> bool:
     """Testa a conexão com o banco."""
     try:
         with engine.connect() as conn:
-            conn.execute("SELECT 1")
+            conn.execute(text("SELECT 1"))
         logger.info("✅ Conexão com o banco estabelecida")
         return True
     except Exception as e:

@@ -12,6 +12,7 @@ import {
   MethodDetail,
   MethodKey,
   ModelInfo,
+  ModelVersionApiResponse,
   PerformancePoint,
   RetrainRecord,
   Severity,
@@ -44,6 +45,7 @@ export interface MonitorData {
   liveMetrics: boolean;
   liveAlerts: boolean;
   livePerformance: boolean;
+  liveModel: boolean;
 }
 
 const SEVERITY_ORDER: Record<Severity, number> = {
@@ -232,6 +234,60 @@ function buildDemoData(
     liveMetrics: false,
     liveAlerts: false,
     livePerformance: false,
+    liveModel: false,
+  };
+}
+
+// ------------------------------------------------------------
+// Metadados do modelo vindos da API (/api/v1/models/{id})
+// ------------------------------------------------------------
+function asNumber(value: unknown, fallback: number): number {
+  const parsed = typeof value === 'string' ? Number(value) : (value as number);
+  return Number.isFinite(parsed) ? Number(parsed) : fallback;
+}
+
+function asRecord(value: unknown): Record<string, unknown> {
+  return value && typeof value === 'object' && !Array.isArray(value)
+    ? (value as Record<string, unknown>)
+    : {};
+}
+
+function modelInfoFromApi(
+  raw: ModelVersionApiResponse,
+  fallback: ModelInfo,
+): ModelInfo {
+  const metrics = asRecord(raw.training_metrics);
+  const hyper = asRecord(raw.hyperparameters);
+
+  const importance = Array.isArray(metrics.feature_importance)
+    ? (metrics.feature_importance as { feature?: unknown; importance?: unknown }[])
+        .map((entry) => ({
+          feature: String(entry.feature ?? ''),
+          importance: asNumber(entry.importance, 0),
+        }))
+        .filter((entry) => entry.feature.length > 0)
+    : fallback.featureImportance;
+
+  return {
+    version: raw.version || fallback.version,
+    modelType: raw.model_type || fallback.modelType,
+    modelPath: raw.model_path || fallback.modelPath,
+    isActive: Boolean(raw.is_active),
+    trainedAt: raw.trained_at ?? fallback.trainedAt,
+    dataset: String(metrics.dataset ?? hyper.dataset ?? fallback.dataset),
+    samples: asNumber(metrics.samples ?? hyper.samples, fallback.samples),
+    features: asNumber(metrics.features ?? hyper.features, fallback.features),
+    fraudRate: asNumber(metrics.fraud_rate ?? hyper.fraud_rate, fallback.fraudRate),
+    hyperparameters: hyper as ModelInfo['hyperparameters'],
+    trainingMetrics: {
+      accuracy: asNumber(metrics.accuracy, fallback.trainingMetrics.accuracy),
+      precision: asNumber(metrics.precision, fallback.trainingMetrics.precision),
+      recall: asNumber(metrics.recall, fallback.trainingMetrics.recall),
+      f1: asNumber(metrics.f1 ?? metrics.f1_score, fallback.trainingMetrics.f1),
+      aucRoc: asNumber(metrics.auc_roc ?? metrics.aucRoc, fallback.trainingMetrics.aucRoc),
+      prAuc: asNumber(metrics.pr_auc ?? metrics.prAuc, fallback.trainingMetrics.prAuc),
+    },
+    featureImportance: importance,
   };
 }
 
@@ -302,7 +358,7 @@ export function useMonitorData(
           ? experiment.config.model_version_id
           : null;
 
-      const [metricsResult, summaryResult, alertsResult, performanceResult] =
+      const [metricsResult, summaryResult, alertsResult, performanceResult, modelResult] =
         await Promise.all([
           api.drift
             .metrics(experiment.id, { limit: 500 })
@@ -312,6 +368,7 @@ export function useMonitorData(
           modelVersionId
             ? api.metrics.performance(modelVersionId).catch(() => [] as PerformancePoint[])
             : Promise.resolve([] as PerformancePoint[]),
+          api.models.list(experiment.id).catch(() => null),
         ]);
 
       if (cancelled) return;
@@ -321,9 +378,11 @@ export function useMonitorData(
       let summary = demo.summary;
       let alerts = demo.alerts;
       let performance = demo.performance;
+      let model = demo.model;
       let liveMetrics = false;
       let liveAlerts = false;
       let livePerformance = false;
+      let liveModel = false;
 
       if (metricsResult && metricsResult.length > 0) {
         features = rowsFromMetrics(metricsResult, thresholds);
@@ -352,9 +411,20 @@ export function useMonitorData(
         livePerformance = true;
       }
 
-      const liveCount = [liveMetrics, liveAlerts, livePerformance].filter(Boolean).length;
+      if (modelResult && modelResult.items.length > 0) {
+        const activeModel = modelResult.active ?? modelResult.items[0];
+        model = modelInfoFromApi(activeModel, model);
+        liveModel = true;
+      }
+
+      const liveCount = [
+        liveMetrics,
+        liveAlerts,
+        livePerformance,
+        liveModel,
+      ].filter(Boolean).length;
       const source: MonitorData['source'] =
-        liveCount === 3 ? 'live' : liveCount > 0 ? 'mixed' : 'demo';
+        liveCount === 4 ? 'live' : liveCount > 0 ? 'mixed' : 'demo';
 
       setData({
         experiment,
@@ -363,13 +433,14 @@ export function useMonitorData(
         driftTimeline,
         alerts,
         summary,
-        model: buildModelInfo(experiment),
+        model,
         source,
         loading: false,
         lastSync: new Date(),
         liveMetrics,
         liveAlerts,
         livePerformance,
+        liveModel,
       });
     };
 

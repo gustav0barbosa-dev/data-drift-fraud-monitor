@@ -11,7 +11,8 @@ LABEL description="Data Drift Fraud Monitor - Backend"
 ENV PYTHONDONTWRITEBYTECODE=1 \
     PYTHONUNBUFFERED=1 \
     PIP_NO_CACHE_DIR=1 \
-    PIP_DISABLE_PIP_VERSION_CHECK=1
+    PIP_DISABLE_PIP_VERSION_CHECK=1 \
+    PYTHONPATH=/app
 
 WORKDIR /app
 
@@ -31,8 +32,9 @@ RUN pip install --upgrade pip && \
 # Copiar código
 COPY . .
 
-# Criar diretórios necessários
-RUN mkdir -p /app/models /app/data /app/logs
+# Criar diretórios necessários e tornar o entrypoint executável
+RUN mkdir -p /app/models /app/data /app/logs && \
+    chmod +x /app/entrypoint.sh
 
 # Expor porta
 EXPOSE 8000
@@ -41,5 +43,5 @@ EXPOSE 8000
 HEALTHCHECK --interval=30s --timeout=10s --start-period=40s --retries=3 \
     CMD curl -f http://localhost:8000/health || exit 1
 
-# Comando padrão
-CMD ["uvicorn", "api.main:app", "--host", "0.0.0.0", "--port", "8000", "--reload"]
+# Entrypoint: espera o banco, aplica migrations e sobe o Uvicorn
+CMD ["sh", "/app/entrypoint.sh"]

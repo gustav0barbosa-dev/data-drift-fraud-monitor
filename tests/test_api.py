@@ -32,6 +32,7 @@ def test_ping():
 # ============================================================
 # Experimentos
 # ============================================================
+@pytest.mark.db
 def test_create_experiment():
     payload = {
         "name": "Teste Pytest",
@@ -47,6 +48,7 @@ def test_create_experiment():
     return data["id"]
 
 
+@pytest.mark.db
 def test_create_duplicate_experiment():
     payload = {
         "name": "Duplicado",
@@ -57,6 +59,7 @@ def test_create_duplicate_experiment():
     assert response.status_code == 409
 
 
+@pytest.mark.db
 def test_list_experiments():
     response = client.get("/api/v1/experiments/")
     assert response.status_code == 200
@@ -65,6 +68,7 @@ def test_list_experiments():
     assert "total" in data
 
 
+@pytest.mark.db
 def test_get_experiment_not_found():
     response = client.get("/api/v1/experiments/99999")
     assert response.status_code == 404
@@ -73,6 +77,7 @@ def test_get_experiment_not_found():
 # ============================================================
 # Predição
 # ============================================================
+@pytest.mark.db
 def test_predict_single():
     payload = {
         "step": 1,
@@ -91,6 +96,7 @@ def test_predict_single():
     assert 0 <= float(data["probability"]) <= 1
 
 
+@pytest.mark.db
 def test_predict_batch():
     payload = {
         "transactions": [

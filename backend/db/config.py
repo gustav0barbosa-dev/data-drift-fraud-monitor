@@ -20,10 +20,16 @@ class Settings(BaseSettings):
     API_PORT: int = 8000
     API_VERSION: str = "v1"
     DEBUG: bool = True
-    
+
+    # CORS (lista separada por vírgulas)
+    CORS_ORIGINS: str = "http://localhost:3000,http://127.0.0.1:3000"
+
     # ML
     MODEL_PATH: str = "/app/models"
     DEFAULT_MODEL: str = "xgboost"
+    # Quando não há artefato treinado carregado, a API usa um preditor
+    # determinístico para manter o dashboard e os testes funcionais.
+    ALLOW_MOCK_PREDICTIONS: bool = True
     
     # Drift
     PSI_THRESHOLD: float = 0.25
@@ -34,6 +40,15 @@ class Settings(BaseSettings):
     # Dataset
     DATASET_PATH: str = "/app/data/paysim.csv"
     
+    @property
+    def cors_origins(self) -> list[str]:
+        """Origens permitidas no CORS."""
+        return [
+            origin.strip()
+            for origin in self.CORS_ORIGINS.split(",")
+            if origin.strip()
+        ]
+
     class Config:
         env_file = ".env"
         env_file_encoding = "utf-8"

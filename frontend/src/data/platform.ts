@@ -225,6 +225,7 @@ export interface EndpointDefinition {
 
 export const API_ENDPOINTS: EndpointDefinition[] = [
   { method: 'GET', path: '/health', group: 'Health', description: 'Status da API, banco e modelo carregado.', testable: 'health' },
+  { method: 'GET', path: '/ping', group: 'Health', description: 'Liveness probe leve — não consulta o banco.', testable: 'health' },
   { method: 'GET', path: '/api/v1/experiments/', group: 'Experimentos', description: 'Lista paginada com filtros de status, drift e busca.', testable: 'experiments' },
   { method: 'POST', path: '/api/v1/experiments/', group: 'Experimentos', description: 'Cria um novo experimento científico (E1–E4).' },
   { method: 'GET', path: '/api/v1/experiments/{id}', group: 'Experimentos', description: 'Detalhe e configuração de um experimento.' },
@@ -247,6 +248,8 @@ export const API_ENDPOINTS: EndpointDefinition[] = [
   { method: 'GET', path: '/api/v1/retrain/history/{experiment_id}', group: 'Retreinamento', description: 'Histórico de retreinamentos do experimento.' },
   { method: 'GET', path: '/api/v1/metrics/performance/{model_version_id}', group: 'Métricas', description: 'Série de desempenho por janela de uma versão.' },
   { method: 'GET', path: '/api/v1/metrics/performance/summary/{experiment_id}', group: 'Métricas', description: 'Resumo de F1 por versão de modelo.' },
+  { method: 'GET', path: '/api/v1/models/{experiment_id}', group: 'Modelos', description: 'Versões de modelo treinadas e a ativa do experimento.' },
+  { method: 'GET', path: '/api/v1/models/{experiment_id}/active', group: 'Modelos', description: 'Metadados do modelo ativo (versão, treino, hiperparâmetros).' },
 ];
 
 export const TEAM = [
