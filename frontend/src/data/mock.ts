@@ -862,10 +862,6 @@ export function buildConfusionMatrix(point: PerformancePoint): {
   };
 }
 
-export function getDemoExperiment(id: number): Experiment {
-  return DEMO_EXPERIMENTS.find((experiment) => experiment.id === id) ?? DEMO_EXPERIMENTS[1];
-}
-
 export function getExperimentRecovery(experiment: Experiment): {
   before: number;
   after: number;
