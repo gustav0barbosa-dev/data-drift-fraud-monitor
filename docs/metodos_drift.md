@@ -12,7 +12,7 @@ Esta documentação cobre as entregas **T2.1 a T2.8** da Pessoa 2
 | T2.5 | Limiares e sistema de alertas | `backend/drift/thresholds.py`, `backend/drift/alert_system.py` |
 | T2.6 | Comparação de sensibilidade (E3) | `backend/experiments/e3_detection_methods.py` |
 | T2.7 | Integração com a API | `backend/api/routes/drift.py`, `backend/api/schemas/drift.py` |
-| T2.8 | Análise estatística | `backend/experiments/statistical_analysis.py`, `docs/relatorio_E3.md` |
+| T2.8 | Análise estatística | `backend/experiments/statistical_analysis.py`, `backend/experiments/results/e3/e3_report.md` |
 
 O detector agregador fica em `backend/drift/detector.py` e é o ponto de
 entrada recomendado para API, experimentos e notebooks.
@@ -306,7 +306,7 @@ Saídas em `backend/experiments/results/e3/`:
 - `e3_performance.csv`
 - `e3_latency.csv`
 
-O relatório consolidado também está em `docs/relatorio_E3.md`.
+O relatório consolidado também está em `backend/experiments/results/e3/e3_report.md`.
 
 ### Resumo dos resultados (execução padrão)
 

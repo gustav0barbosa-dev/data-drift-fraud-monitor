@@ -105,5 +105,5 @@ sequenceDiagram
 - [`pipeline_ml.md`](pipeline_ml.md) — dataset, features, modelo, experimentos E1/E2/E4
 - [`modelagem_banco.md`](modelagem_banco.md) — ER, índices e migrations
 - [`metodos_drift.md`](metodos_drift.md) — PSI, KS, JS e Wasserstein
-- [`relatorio_E3.md`](relatorio_E3.md) — comparação de sensibilidade
+- [`e3_report.md`](../backend/experiments/results/e3/e3_report.md) — comparação de sensibilidade
 - [`fluxo_trabalho.md`](fluxo_trabalho.md) — divisão de tarefas

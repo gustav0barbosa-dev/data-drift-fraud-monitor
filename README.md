@@ -297,7 +297,7 @@ Detalhes do pipeline, features, artefatos e decisões em
 [`docs/pipeline_ml.md`](docs/pipeline_ml.md).
 
 Resultados do E3 em [`backend/experiments/results/e3/e3_results.json`](backend/experiments/results/e3/e3_results.json)
-e relatório em [`docs/relatorio_E3.md`](docs/relatorio_E3.md).
+e relatório em [`backend/experiments/results/e3/e3_report.md`](backend/experiments/results/e3/e3_report.md).
 
 Os experimentos da Pessoa 1 geram, em `backend/experiments/results/`:
 

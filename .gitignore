@@ -60,7 +60,3 @@ Thumbs.db
 
 # PgAdmin
 pgadmin_data/
-
-# Logs
-logs/
-*.log
